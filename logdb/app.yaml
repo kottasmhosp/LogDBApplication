@@ -1,0 +1,36 @@
+service: protel
+runtime: php
+env: flex
+
+runtime_config:
+  document_root: public
+  front_controller_file: index.php
+
+manual_scaling:
+  instances: 1
+
+resources:
+  memory_gb: 1.2
+
+env_variables:
+    APP_ENV: "prod"
+    DATABASE_HOST:  "localhost"
+    DATABASE_NAME:  "protel"
+    DATABASE_USER:  "root"
+    DATABASE_PASSWORD: "9NshKvKeF4HH1pHc"
+    UNIX_SOCKET:  "/cloudsql/mhosp-integration:europe-west1:integrations"
+    RABBITMQ_HOST: "10.128.0.2"
+    RABBITMQ_PORT: "5672"
+    RABBITMQ_USER: "user"
+    RABBITMQ_PASSWORD: "PEhx9diRbzyh"
+    RABBITMQ_VHOST: "integration"
+    JWT_SECRET_KEY: "%kernel.project_dir%/config/jwt/private.pem"
+    JWT_PUBLIC_KEY: "%kernel.project_dir%/config/jwt/public.pem"
+    JWT_PASSPHRASE: "c38b95a3c7b21b95fd81f105cb83d4c9"
+    JWT_TOKEN_TTL:  631138520000
+    IMPALA_KEY: "a174dc8f042a341e2f640bc3f9cdebd84fd7de1c99a431a2"
+
+beta_settings:
+  # for Cloud SQL, set this value to the Cloud SQL connection name,
+  # e.g. "project:region:cloudsql-instance"
+  cloud_sql_instances: "mhosp-integration:europe-west1:integrations"
