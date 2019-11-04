@@ -81,24 +81,14 @@ Exposed endpoints:
 Check for this the routes in **ApiEndpoints** controller
 
 
-## Local access to the cloud DB
+## Configure Database
 
-Set the environmenta variables in .env file
+If not exists, create a .env file using .env.demo as template
 
-download the Google DB proxy and follow instructions
+By default application use docker's database. If you want to change it change DATABASE_{variable}.
 
-https://cloud.google.com/sql/docs/mysql/connect-external-app
+## Troubleshoot
 
-Run proxy in order to connect to the cloud db as follows:
-
-`./cloud_sql_proxy -instances=ikentoo-integration:europe-west1:ikentoo=tcp:3306`
-
-
-## Deployment
-
-The app.yaml file holds the environmental variables for the cloud server.
-The microservice is deployed as an App on Google App engine. 
-Make the changes and deploy by using the following command
-
-`gcloud app deploy`
-
+If do not load check:
+ - "var" directory exists in root path and is accessible by everyone
+ - .env is created
