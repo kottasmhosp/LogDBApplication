@@ -1,8 +1,19 @@
 <?php
 
+namespace App\Utils\LogParser\Kottas;
 
-class HdfsLogParser
+abstract class HdfsLogParser
 {
-    private $bad_rows; // Number of bad rows
-
+    /**
+     * @var array
+     * Initialize a hdfs log formatted array
+     */
+    protected $logsFormat = array(
+        "timeStamp" => "",
+        "blockId" => "",
+        "sourceIp" => "",
+        "destinationIp" => "",
+        "size" => "",
+        "type" => "",
+    );
 }

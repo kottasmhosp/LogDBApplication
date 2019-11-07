@@ -1,9 +1,24 @@
 <?php
 
+namespace App\Utils\LogParser\Kottas;
 
 class AccessLogParser
 {
-    private $bad_rows; // Number of bad rows
+    private $formated_log = array(
+        "ip" => "",
+        "identity" => "",
+        "user" => "",
+        "date" => "",
+        "time" => "",
+        "timezone" => "",
+        "method" => "",
+        "path" => "",
+        "protocal" => "",
+        "status" => "",
+        "bytes" => "",
+        "referer" => "",
+        "agent" => ""
+    );
 
     //Access.log Formatter
     private function format_log_line($line)
@@ -18,7 +33,6 @@ class AccessLogParser
 
         if (isset($logs[0])) // check that it formated OK
         {
-            $formated_log = array(); // make an array to store the lin info in
             $formated_log['ip'] = $logs[1];
             $formated_log['identity'] = $logs[2];
             $formated_log['user'] = $logs[2];
@@ -32,12 +46,19 @@ class AccessLogParser
             $formated_log['bytes'] = $logs[11];
             $formated_log['referer'] = $logs[12];
             $formated_log['agent'] = $logs[13];
-            return $formated_log; // return the array of info
+            return array(
+                "badEntry" => false,
+                "originalLog" => $line,
+                "formattedLog" => $formated_log
+            );
         }
         else
         {
-            $this->badRows++; // if the row is not in the right format add it to the bad rows
-            return false;
+            return array(
+                "badEntry" => true,
+                "originalLog" => $line,
+                "formattedLog" => NULL
+            );
         }
     }
 }
