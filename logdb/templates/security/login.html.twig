@@ -3,31 +3,40 @@
 {% block title %}Log in!{% endblock %}
 
 {% block body %}
-<form method="post">
-    {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
+    <form method="post">
+        {% if error %}
+            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+        {% endif %}
 
-    <div class="row">
+        <div class="row">
 
-        <div class="col">
-            <div class="hide-md-lg">
-                <p>Sign in to LogDB:</p>
+            <div class="col">
+                <div class="hide-md-lg">
+                    <p>Sign in to LogDB:</p>
+                </div>
+                <input type="text" value="{{ last_username }}" name="username" id="inputUsername" class="form-control"
+                       placeholder="Username" required autofocus>
+                <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password"
+                       required>
             </div>
-            <input type="text" value="{{ last_username }}" name="username" id="inputUsername" class="form-control" placeholder="Username" required autofocus>
-            <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required>
+
+        </div>
+        <input type="hidden" name="_csrf_token"
+               value="{{ csrf_token('authenticate') }}"
+        >
+
+        <div>
+            <button class="btn btn-lg btn-primary" type="submit">
+                Sign in
+            </button>
+            <button class="btn btn-lg btn-primary" href="public/register">
+                Register
+            </button>
         </div>
 
-    </div>
-    <input type="hidden" name="_csrf_token"
-           value="{{ csrf_token('authenticate') }}"
-    >
-
-    <button class="btn btn-lg btn-primary" type="submit">
-        Sign in
-    </button>
-{#        Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.#}
-{#        See https://symfony.com/doc/current/security/remember_me.html#}
+        </div>
+        {#        Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.#}
+        {#        See https://symfony.com/doc/current/security/remember_me.html#}
 
         <div class="checkbox mb-3">
             <label>
@@ -35,5 +44,5 @@
             </label>
         </div>
 
-</form>
+    </form>
 {% endblock %}
