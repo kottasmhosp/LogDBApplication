@@ -18,7 +18,7 @@ class HdfsLogParserDataXReceiverLog extends HdfsLogParser
      * Example of not parsed logs
      * 081116 205120 741 INFO dfs.DataNode$DataXceiver: writeBlock blk_6445911672318944838 received exception java.io.IOException: Could not read from stream
      */
-    private function format_hdfs_DataXReceiver_log_line($line, $type)
+    public function format_hdfs_DataXReceiver_log_line($line, $type)
     {
         $explodedLine = explode(" ", $line);
         if (strpos($explodedLine, "java") !== false) {

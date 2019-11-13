@@ -27,7 +27,7 @@ class AccessLogParser
         return $matches;
     }
 
-    private function format_line($line)
+    public function format_line($line)
     {
         $logs = $this->format_log_line($line); // format the line
 
@@ -35,7 +35,7 @@ class AccessLogParser
         {
             $formated_log['ip'] = $logs[1];
             $formated_log['identity'] = $logs[2];
-            $formated_log['user'] = $logs[2];
+            $formated_log['user'] = $logs[3];
             $formated_log['date'] = $logs[4];
             $formated_log['time'] = $logs[5];
             $formated_log['timezone'] = $logs[6];
