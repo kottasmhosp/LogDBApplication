@@ -185,6 +185,9 @@
     "symfony/cache": {
         "version": "v4.2.0"
     },
+    "symfony/cache-contracts": {
+        "version": "v1.1.7"
+    },
     "symfony/config": {
         "version": "v4.2.0"
     },
@@ -211,6 +214,9 @@
     },
     "symfony/event-dispatcher": {
         "version": "v4.2.0"
+    },
+    "symfony/event-dispatcher-contracts": {
+        "version": "v1.1.7"
     },
     "symfony/filesystem": {
         "version": "v4.2.0"
@@ -331,6 +337,9 @@
     },
     "symfony/stopwatch": {
         "version": "v4.2.4"
+    },
+    "symfony/translation-contracts": {
+        "version": "v1.1.7"
     },
     "symfony/twig-bridge": {
         "version": "v4.2.11"
