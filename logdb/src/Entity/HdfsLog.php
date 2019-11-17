@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -37,6 +39,16 @@ class HdfsLog
      * @ORM\Column(type="integer")
      */
     private $size;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Block", mappedBy="block_id")
+     */
+    private $blocks;
+
+    public function __construct()
+    {
+        $this->blocks = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -87,6 +99,34 @@ class HdfsLog
     public function setSize(int $size): self
     {
         $this->size = $size;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Block[]
+     */
+    public function getBlocks(): Collection
+    {
+        return $this->blocks;
+    }
+
+    public function addBlock(Block $block): self
+    {
+        if (!$this->blocks->contains($block)) {
+            $this->blocks[] = $block;
+            $block->addBlockId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBlock(Block $block): self
+    {
+        if ($this->blocks->contains($block)) {
+            $this->blocks->removeElement($block);
+            $block->removeBlockId($this);
+        }
 
         return $this;
     }

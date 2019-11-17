@@ -8,6 +8,7 @@ use App\Entity\Logger;
 use App\Utils\LogParser\Kottas\AccessLogParser;
 use App\Utils\LogParser\Kottas\HdfsLogParserDataXReceiverLog;
 use App\Utils\LogParser\Kottas\HdfsLogParserNamesystemLog;
+use Cassandra\Date;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper;
@@ -44,7 +45,7 @@ class DbinitCommand extends Command
         $arg1 = $input->getArgument('filepath');
 
         if ($arg1) {
-            $io->note(sprintf('You passed an argument: %s', $arg1));
+            $io->note(sprintf('You filepath is: %s', $arg1));
         }
 
         $file = fopen($arg1, "r");
@@ -72,6 +73,7 @@ class DbinitCommand extends Command
         }
 
         $em = $this->container->get("doctrine")->getManager();
+        $counterToFlushWrites = 0;
         while (!feof($file)) {
             $line = fgets($file);
             if ($type == 1) {
@@ -80,43 +82,79 @@ class DbinitCommand extends Command
                     $log = new Logger();
                     $log->setDestIp($formattedLogs['formattedLog']['identity']);
                     $log->setSourceIp($formattedLogs['formattedLog']['ip']);
-                    print_r($line);
-                    print_r("\n");
-                    print_r($formattedLogs['formattedLog']['date'] . " " . $formattedLogs['formattedLog']['time']);
-                    print_r("\n");
-                    $date = \DateTime::createFromFormat("d/M/Y h:i:s", $formattedLogs['formattedLog']['date'] . " " . $formattedLogs['formattedLog']['time'] );
-                    print_r($date);
-                    print_r("\n");
-                    $log->setTimeStamp(strtotime($date->format("Y-m-d h:i:s") ));
+                    $date = \DateTime::createFromFormat("d/M/Y H:i:s", $formattedLogs['formattedLog']['date'] . " " . $formattedLogs['formattedLog']['time'] );
+                    If(empty($date)){
+                        $badEntry = new ExceptionLogs();
+                        $badEntry->setInsertDate(new \DateTime());
+                        $badEntry->setLog($line);
+                        $badEntry->setReason("bad date format");
+                        $em->persist($badEntry);
+                    } else {
+                        $log->setTimeStamp(strtotime($date->format("Y-m-d h:i:s") ));
+                        $accessLog = new AccessLog();
+                        $accessLog->setMethod($formattedLogs['formattedLog']['method']);
+                        $accessLog->setReferer($formattedLogs['formattedLog']['referer']);
+                        $accessLog->setRequestedResource($formattedLogs['formattedLog']['path']);
+                        $accessLog->setResponseSize(intval($formattedLogs['formattedLog']['bytes']));
+                        $accessLog->setResponseStatus($formattedLogs['formattedLog']['status']);
+                        $accessLog->setUserAgent($formattedLogs['formattedLog']['agent']);
 
-                    $accessLog = new AccessLog();
-                    $accessLog->setMethod($formattedLogs['formattedLog']['method']);
-                    $accessLog->setReferer($formattedLogs['formattedLog']['referer']);
-                    $accessLog->setRequestedResource($formattedLogs['formattedLog']['path']);
-                    $accessLog->setResponseSize($formattedLogs['formattedLog']['bytes']);
-                    $accessLog->setResponseStatus($formattedLogs['formattedLog']['status']);
-                    $accessLog->setUserAgent($formattedLogs['formattedLog']['agent']);
-
-                    $log->setAccessLog($accessLog);
-                    $em->getEntityManager()->persist($log);
+                        $log->setAccessLog($accessLog);
+                        $em->persist($log);
+                    }
                 } else {
                     $badEntry = new ExceptionLogs();
                     $badEntry->setInsertDate(new \DateTime());
                     $badEntry->setLog($line);
+                    $badEntry->setReason("unknown access log format");
+                    $em->persist($badEntry);
                 }
-            } elseif ($type == 2) {
+            }
+            elseif ($type == 2) {
 
-                $example = '081116 203518 143 INFO dfs.DataNode$DataXceiver: Receiving block blk_-1608999687919862906 src: /10.250.19.102:54106 dest: /10.250.19.102:50010';
                 $formattedLogs = $parser->format_hdfs_DataXReceiver_log_line($line);
                 print_r($formattedLogs);
                 print_r("\n");
                 exit();
+                $formattedLogs = $parser->format_line($line);
+                if ($formattedLogs['badEntry'] == false) {
+                    $log = new Logger();
+                    $log->setDestIp($formattedLogs['formattedLog']['identity']);
+                    $log->setSourceIp($formattedLogs['formattedLog']['ip']);
+                    $date = \DateTime::createFromFormat("d/M/Y H:i:s", $formattedLogs['formattedLog']['date'] . " " . $formattedLogs['formattedLog']['time'] );
+                    If(empty($date)){
+                        $badEntry = new ExceptionLogs();
+                        $badEntry->setInsertDate(new \DateTime());
+                        $badEntry->setLog($line);
+                        $badEntry->setReason("bad date format");
+                        $em->persist($badEntry);
+                    } else {
+                        $log->setTimeStamp(strtotime($date->format("Y-m-d h:i:s") ));
+                        $hdfslog = new HdfsLogParserDataXReceiverLog();
+                        $hdfslog->set($formattedLogs['formattedLog']['method']);
+
+                        $log->setHdfsLog($accessLog);
+                        $em->persist($log);
+                    }
+                } else {
+                    $badEntry = new ExceptionLogs();
+                    $badEntry->setInsertDate(new \DateTime());
+                    $badEntry->setLog($line);
+                    $badEntry->setInsertDate();
+                    $badEntry->setReason("unknown HDFS DataXReceiver log format");
+                    $em->persist($badEntry);
+                }
             } elseif ($type == 3) {
                 $formattedLogs = $parser->format_hdfs_Namesystem_log_line($line);
             } else {
                 //TODO general logs
             }
-
+            //flush every 1000 entries to reduce I/O overhead and database constantly locking
+            //TODO change ready to flush value to find best flush frequency
+            if($counterToFlushWrites % 1000 == 0) {
+                $em->flush();
+            }
+            $counterToFlushWrites++;
         }
         fclose($file);
 
