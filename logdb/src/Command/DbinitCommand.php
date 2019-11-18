@@ -64,10 +64,10 @@ class DbinitCommand extends Command
         if ($pathTree[$totalPathDirectories - 1] == 'access.log') {
             $type = 1;
             $parser = new AccessLogParser();
-        } elseif ($pathTree[$totalPathDirectories - 1] = 'HDFS_DataXceiver.log') {
+        } elseif ($pathTree[$totalPathDirectories - 1] == 'HDFS_DataXceiver.log') {
             $type = 2;
             $parser = new HdfsLogParserDataXReceiverLog();
-        } elseif ($pathTree[$totalPathDirectories - 1] = 'HDFS_Namesystem.log') {
+        } elseif ($pathTree[$totalPathDirectories - 1] == 'HDFS_FS_Namesystem.log') {
             $type = 3;
             $parser = new HdfsLogParserNamesystemLog();
         } else {
@@ -79,21 +79,18 @@ class DbinitCommand extends Command
         $counterToFlushWrites = 1;
         while (!feof($file)) {
             $line = fgets($file);
+            $now = new \DateTime();
             if ($type == 1) {
                 $formattedLogs = $parser->format_line($line);
                 if ($formattedLogs['badEntry'] == false) {
-                    $log = new Logger();
-                    $log->setDestIp($formattedLogs['formattedLog']['identity']);
-                    $log->setSourceIp($formattedLogs['formattedLog']['ip']);
-                    $date = \DateTime::createFromFormat("d/M/Y H:i:s", $formattedLogs['formattedLog']['date'] . " " . $formattedLogs['formattedLog']['time'] );
-                    if(empty($date)){
+                    $date = \DateTime::createFromFormat("d/M/Y H:i:s", $formattedLogs['formattedLog']['date'] . " " . $formattedLogs['formattedLog']['time']);
+                    if (empty($date)) {
                         $badEntry = new ExceptionLogs();
-                        $badEntry->setInsertDate(new \DateTime());
+                        $badEntry->setInsertDate(strtotime($now->format("Y-m-d h:i:s")));
                         $badEntry->setLog($line);
                         $badEntry->setReason("bad date format");
                         $em->persist($badEntry);
                     } else {
-                        $log->setTimeStamp(strtotime($date->format("Y-m-d h:i:s") ));
                         $accessLog = new AccessLog();
                         $accessLog->setMethod($formattedLogs['formattedLog']['method']);
                         $accessLog->setReferer($formattedLogs['formattedLog']['referer']);
@@ -102,63 +99,110 @@ class DbinitCommand extends Command
                         $accessLog->setResponseStatus($formattedLogs['formattedLog']['status']);
                         $accessLog->setUserAgent($formattedLogs['formattedLog']['agent']);
 
+                        $log = new Logger();
+                        $log->setDestIp($formattedLogs['formattedLog']['identity']);
+                        $log->setSourceIp($formattedLogs['formattedLog']['ip']);
+                        $log->setTimeStamp(strtotime($date->format("Y-m-d h:i:s")));
                         $log->setAccessLog($accessLog);
                         $em->persist($log);
                     }
                 } else {
                     $badEntry = new ExceptionLogs();
-                    $badEntry->setInsertDate(new \DateTime());
+                    $badEntry->setInsertDate(strtotime($now->format("Y-m-d h:i:s")));
                     $badEntry->setLog($line);
                     $badEntry->setReason("unknown access log format");
                     $em->persist($badEntry);
                 }
-            }
-            elseif ($type == 2) {
+            } elseif ($type == 2) {
                 $formattedLogs = $parser->format_hdfs_DataXReceiver_log_line($line);
                 if ($formattedLogs['badEntry'] == false) {
-                    $log = new Logger();
-                    $log->setDestIp($formattedLogs['formattedLog']['destinationIp']);
-                    $log->setSourceIp($formattedLogs['formattedLog']['sourceIp']);
-                    $date = \DateTime::createFromFormat("dmy His", $formattedLogs['formattedLog']['timeStamp'] );
-                    $blockId = $em->getRepository("App\Entity\Block")->findBy(array("block_number" => $formattedLogs['formattedLog']['bid']));
-                    if(empty($blockId)){
-                        $blockId = new Block();
-                        $blockId->setBlockNumber($formattedLogs['formattedLog']['bid']);
-                    }
-                    print_r($date->format("Y-m-d h:i:s"));
-                    print_r($blockId->getBlockNumber());
-                    exit();
-                    if(empty($date)){
+                    $date = \DateTime::createFromFormat("dmy His", $formattedLogs['formattedLog']['timeStamp']);
+                    $size = 0;
+                    if (empty($date)) {
                         $badEntry = new ExceptionLogs();
-                        $badEntry->setInsertDate(new \DateTime());
+                        $badEntry->setInsertDate(strtotime($now->format("Y-m-d h:i:s")));
                         $badEntry->setLog($line);
                         $badEntry->setReason("bad date format");
                         $em->persist($badEntry);
                     } else {
-                        $log->setTimeStamp(strtotime($date->format("Y-m-d h:i:s") ));
+                        $blockId = $em->getRepository("App\Entity\Block")->findOneBy(array("block_number" => $formattedLogs['formattedLog']['bid']));
+                        if (empty($blockId)) {
+                            $blockId = new Block();
+                            $blockId->setBlockNumber($formattedLogs['formattedLog']['bid']);
+                            $em->persist($blockId);
+                        }
+
                         $hdfslog = new HdfsLog();
-                        $hdfslog->setSize(formattedLogs['formattedLog']['blockId']);
-                        $hdfslog->setType(formattedLogs['formattedLog']['blockId']);
+                        if ($formattedLogs['formattedLog']['size'] == "block") {
+                            $size = 4;
+                        }
+                        $hdfslog->setSize($size);
+                        $hdfslog->setType($formattedLogs['formattedLog']['type']);
                         $hdfslog->addBlock($blockId);
+
+                        $log = new Logger();
+                        $log->setDestIp($formattedLogs['formattedLog']['destinationIp']);
+                        $log->setSourceIp($formattedLogs['formattedLog']['sourceIp']);
+                        $log->setTimeStamp(strtotime($date->format("Y-m-d h:i:s")));
                         $log->setHdfsLog($hdfslog);
                         $em->persist($log);
                     }
                 } else {
                     $badEntry = new ExceptionLogs();
-                    $badEntry->setInsertDate(new \DateTime());
+                    $badEntry->setInsertDate(strtotime($now->format("Y-m-d h:i:s")));
                     $badEntry->setLog($line);
-                    $badEntry->setInsertDate();
                     $badEntry->setReason("unknown HDFS DataXReceiver log format");
                     $em->persist($badEntry);
                 }
             } elseif ($type == 3) {
                 $formattedLogs = $parser->format_hdfs_Namesystem_log_line($line);
+                if ($formattedLogs['badEntry'] == false) {
+                    $date = \DateTime::createFromFormat("dmy His", $formattedLogs['formattedLog']['timeStamp']);
+                    $size = 0;
+                    if (empty($date)) {
+                        $badEntry = new ExceptionLogs();
+                        $badEntry->setInsertDate(strtotime($now->format("Y-m-d h:i:s")));
+                        $badEntry->setLog($line);
+                        $badEntry->setReason("bad date format");
+                        $em->persist($badEntry);
+                    } else {
+                        $hdfslog = new HdfsLog();
+                        $hdfslog->setSize($size);
+                        $hdfslog->setType($formattedLogs['formattedLog']['type']);
+
+                        foreach($formattedLogs['formattedLog']['blocks'] as $block) {
+                            $blockId = $em->getRepository("App\Entity\Block")->findOneBy(array("block_number" => $block));
+                            if (empty($blockId)) {
+                                $blockId = new Block();
+                                $blockId->setBlockNumber($block);
+                                $em->persist($blockId);
+                            }
+                            $size = $size + 4;
+                            $hdfslog->addBlock($blockId);
+                        }
+
+                        foreach($formattedLogs['formattedLog']['destinationIps'] as $destinationIp){
+                            $log = new Logger();
+                            $log->setDestIp($destinationIp);
+                            $log->setSourceIp($formattedLogs['formattedLog']['sourceIp']);
+                            $log->setTimeStamp(strtotime($date->format("Y-m-d h:i:s")));
+                            $log->setHdfsLog($hdfslog);
+                            $em->persist($log);
+                        }
+                    }
+                } else {
+                    $badEntry = new ExceptionLogs();
+                    $badEntry->setInsertDate(strtotime($now->format("Y-m-d h:i:s")));
+                    $badEntry->setLog($line);
+                    $badEntry->setReason("unknown HDFS Namesystem log format");
+                    $em->persist($badEntry);
+                }
             } else {
                 //TODO general logs
             }
             //flush every 1000 entries to reduce I/O overhead and database constantly locking
             //TODO change ready to flush value to find best flush frequency
-            if($counterToFlushWrites % 1000 == 0) {
+            if ($counterToFlushWrites % 1000 == 0) {
                 print_r($counterToFlushWrites . "\n");
                 $em->flush();
             }

@@ -10,9 +10,9 @@ abstract class HdfsLogParser
      */
     protected $logsFormat = array(
         "timeStamp" => "",
-        "blockId" => "",
+        "blocks" => array(),
         "sourceIp" => "",
-        "destinationIp" => "",
+        "destinationIps" => array(),
         "size" => "",
         "type" => "",
     );

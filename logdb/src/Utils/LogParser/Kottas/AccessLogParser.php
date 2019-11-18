@@ -51,9 +51,7 @@ class AccessLogParser
                 "originalLog" => $line,
                 "formattedLog" => $formated_log
             );
-        }
-        else
-        {
+        } else {
             return array(
                 "badEntry" => true,
                 "originalLog" => $line,

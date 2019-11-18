@@ -22,15 +22,16 @@ class ExceptionLogs
      */
     private $log;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private $insertDate;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $reason;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $insertDate;
 
     public function getId(): ?int
     {
@@ -48,19 +49,7 @@ class ExceptionLogs
 
         return $this;
     }
-
-    public function getInsertDate(): ?\DateTimeInterface
-    {
-        return $this->insertDate;
-    }
-
-    public function setInsertDate(\DateTimeInterface $insertDate): self
-    {
-        $this->insertDate = $insertDate;
-
-        return $this;
-    }
-
+    
     public function getReason(): ?string
     {
         return $this->reason;
@@ -69,6 +58,18 @@ class ExceptionLogs
     public function setReason(?string $reason): self
     {
         $this->reason = $reason;
+
+        return $this;
+    }
+
+    public function getInsertDate(): ?int
+    {
+        return $this->insertDate;
+    }
+
+    public function setInsertDate(int $insertDate): self
+    {
+        $this->insertDate = $insertDate;
 
         return $this;
     }

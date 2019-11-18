@@ -2,10 +2,6 @@
 
 namespace App\Utils\LogParser\Kottas;
 
-/**
- * Extends Hdfs log parser
- *
- */
 class HdfsLogParserDataXReceiverLog extends HdfsLogParser
 {
 
@@ -17,6 +13,8 @@ class HdfsLogParserDataXReceiverLog extends HdfsLogParser
      *
      * Example of not parsed logs
      * 081116 205120 741 INFO dfs.DataNode$DataXceiver: writeBlock blk_6445911672318944838 received exception java.io.IOException: Could not read from stream
+     * @param $line
+     * @return array
      */
     public function format_hdfs_DataXReceiver_log_line($line)
     {
@@ -30,22 +28,22 @@ class HdfsLogParserDataXReceiverLog extends HdfsLogParser
             $explodedLine = explode(" ", $line);
             if ($explodedLine[3] == 'INFO') {
                 if ($explodedLine[10] == 'dest:') {
-                    $formatted_line = array(
+                    $this->logsFormat = array(
                         "timeStamp" => $explodedLine[0] . " " . $explodedLine[1],
                         "blockId" => $explodedLine[7],
-                        "bid" => str_replace("blk_","",$explodedLine[7]),
+                        "bid" => str_replace("blk_", "", $explodedLine[7]),
                         "sourceIp" => $explodedLine[9],
                         "destinationIp" => $explodedLine[11],
                         "size" => $explodedLine[6],
                         "type" => $explodedLine[5]
                     );
                 } else {
-                    $formatted_line = array(
+                    $this->logsFormat = array(
                         "timeStamp" => $explodedLine[0] . " " . $explodedLine[1],
                         "blockId" => $explodedLine[8],
                         "sourceIp" => $explodedLine[5],
                         "destinationIp" => $explodedLine[10],
-                        "bid" => str_replace("blk_","",$explodedLine[8]),
+                        "bid" => str_replace("blk_", "", $explodedLine[8]),
                         "size" => $explodedLine[7],
                         "type" => $explodedLine[6]
                     );
@@ -53,24 +51,24 @@ class HdfsLogParserDataXReceiverLog extends HdfsLogParser
                 return array(
                     "badEntry" => false,
                     "originalLog" => $line,
-                    "formattedLog" => $formatted_line
+                    "formattedLog" => $this->logsFormat
                 );
             } elseif ($explodedLine[3] == 'WARN') {
                 //Destination Ip is before type Ip
                 $exceptionLineExploded = explode(":", $explodedLine[5]);
-                $formatted_line = array(
+                $this->logsFormat = array(
                     "timeStamp" => $explodedLine[0] . " " . $explodedLine[1],
                     "blockId" => $explodedLine[9],
                     "sourceIp" => $exceptionLineExploded[0],
                     "destinationIp" => $explodedLine[11],
-                    "bid" => str_replace("blk_","",$explodedLine[9]),
+                    "bid" => str_replace("blk_", "", $explodedLine[9]),
                     "size" => "block",
                     "type" => $explodedLine[8]
                 );
                 return array(
                     "badEntry" => true,
                     "originalLog" => $line,
-                    "formattedLog" => $formatted_line
+                    "formattedLog" => $this->logsFormat
                 );
             }
         }
