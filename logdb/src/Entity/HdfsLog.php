@@ -28,11 +28,6 @@ class HdfsLog
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $blockId;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
     private $type;
 
     /**
@@ -41,9 +36,10 @@ class HdfsLog
     private $size;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Block", mappedBy="block_id")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Block", inversedBy="hdfsLogs")
      */
     private $blocks;
+
 
     public function __construct()
     {
@@ -63,18 +59,6 @@ class HdfsLog
     public function setLoggerId(Logger $logger_id): self
     {
         $this->logger_id = $logger_id;
-
-        return $this;
-    }
-
-    public function getBlockId(): ?string
-    {
-        return $this->blockId;
-    }
-
-    public function setBlockId(string $blockId): self
-    {
-        $this->blockId = $blockId;
 
         return $this;
     }
@@ -115,7 +99,6 @@ class HdfsLog
     {
         if (!$this->blocks->contains($block)) {
             $this->blocks[] = $block;
-            $block->addBlockId($this);
         }
 
         return $this;
@@ -125,9 +108,9 @@ class HdfsLog
     {
         if ($this->blocks->contains($block)) {
             $this->blocks->removeElement($block);
-            $block->removeBlockId($this);
         }
 
         return $this;
     }
+
 }

@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping\Index;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\BlockRepository")
- * @ORM\Table(schema="public",indexes={@Index(name="search_idx", columns={"block_name"})})
+ * @ORM\Table(schema="public")
  */
 class Block
 {
@@ -22,18 +22,19 @@ class Block
     private $id;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\HdfsLog", inversedBy="blocks")
+     * @ORM\ManyToMany(targetEntity="App\Entity\HdfsLog", mappedBy="blocks")
      */
-    private $block_id;
+    private $hdfsLogs;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="bigint")
      */
-    private $block_name;
+    private $block_number;
+
 
     public function __construct()
     {
-        $this->block_id = new ArrayCollection();
+        $this->hdfsLogs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -44,38 +45,41 @@ class Block
     /**
      * @return Collection|HdfsLog[]
      */
-    public function getBlockId(): Collection
+    public function getHdfsLogs(): Collection
     {
-        return $this->block_id;
+        return $this->hdfsLogs;
     }
 
-    public function addBlockId(HdfsLog $blockId): self
+    public function addHdfsLog(HdfsLog $hdfsLog): self
     {
-        if (!$this->block_id->contains($blockId)) {
-            $this->block_id[] = $blockId;
+        if (!$this->hdfsLogs->contains($hdfsLog)) {
+            $this->hdfsLogs[] = $hdfsLog;
+            $hdfsLog->addBlock($this);
         }
 
         return $this;
     }
 
-    public function removeBlockId(HdfsLog $blockId): self
+    public function removeHdfsLog(HdfsLog $hdfsLog): self
     {
-        if ($this->block_id->contains($blockId)) {
-            $this->block_id->removeElement($blockId);
+        if ($this->hdfsLogs->contains($hdfsLog)) {
+            $this->hdfsLogs->removeElement($hdfsLog);
+            $hdfsLog->removeBlock($this);
         }
 
         return $this;
     }
 
-    public function getBlockName(): ?int
+    public function getBlockNumber(): ?string
     {
-        return $this->block_name;
+        return $this->block_number;
     }
 
-    public function setBlockName(int $block_name): self
+    public function setBlockNumber(string $block_number): self
     {
-        $this->block_name = $block_name;
+        $this->block_number = $block_number;
 
         return $this;
     }
+
 }

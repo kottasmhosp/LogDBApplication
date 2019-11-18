@@ -3,7 +3,9 @@
 namespace App\Command;
 
 use App\Entity\AccessLog;
+use App\Entity\Block;
 use App\Entity\ExceptionLogs;
+use App\Entity\HdfsLog;
 use App\Entity\Logger;
 use App\Utils\LogParser\Kottas\AccessLogParser;
 use App\Utils\LogParser\Kottas\HdfsLogParserDataXReceiverLog;
@@ -11,6 +13,7 @@ use App\Utils\LogParser\Kottas\HdfsLogParserNamesystemLog;
 use Cassandra\Date;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper;
 use Kassner\LogParser\LogParser;
 use Symfony\Component\Console\Command\Command;
@@ -73,7 +76,7 @@ class DbinitCommand extends Command
         }
 
         $em = $this->container->get("doctrine")->getManager();
-        $counterToFlushWrites = 0;
+        $counterToFlushWrites = 1;
         while (!feof($file)) {
             $line = fgets($file);
             if ($type == 1) {
@@ -83,7 +86,7 @@ class DbinitCommand extends Command
                     $log->setDestIp($formattedLogs['formattedLog']['identity']);
                     $log->setSourceIp($formattedLogs['formattedLog']['ip']);
                     $date = \DateTime::createFromFormat("d/M/Y H:i:s", $formattedLogs['formattedLog']['date'] . " " . $formattedLogs['formattedLog']['time'] );
-                    If(empty($date)){
+                    if(empty($date)){
                         $badEntry = new ExceptionLogs();
                         $badEntry->setInsertDate(new \DateTime());
                         $badEntry->setLog($line);
@@ -111,18 +114,21 @@ class DbinitCommand extends Command
                 }
             }
             elseif ($type == 2) {
-
                 $formattedLogs = $parser->format_hdfs_DataXReceiver_log_line($line);
-                print_r($formattedLogs);
-                print_r("\n");
-                exit();
-                $formattedLogs = $parser->format_line($line);
                 if ($formattedLogs['badEntry'] == false) {
                     $log = new Logger();
-                    $log->setDestIp($formattedLogs['formattedLog']['identity']);
-                    $log->setSourceIp($formattedLogs['formattedLog']['ip']);
-                    $date = \DateTime::createFromFormat("d/M/Y H:i:s", $formattedLogs['formattedLog']['date'] . " " . $formattedLogs['formattedLog']['time'] );
-                    If(empty($date)){
+                    $log->setDestIp($formattedLogs['formattedLog']['destinationIp']);
+                    $log->setSourceIp($formattedLogs['formattedLog']['sourceIp']);
+                    $date = \DateTime::createFromFormat("dmy His", $formattedLogs['formattedLog']['timeStamp'] );
+                    $blockId = $em->getRepository("App\Entity\Block")->findBy(array("block_number" => $formattedLogs['formattedLog']['bid']));
+                    if(empty($blockId)){
+                        $blockId = new Block();
+                        $blockId->setBlockNumber($formattedLogs['formattedLog']['bid']);
+                    }
+                    print_r($date->format("Y-m-d h:i:s"));
+                    print_r($blockId->getBlockNumber());
+                    exit();
+                    if(empty($date)){
                         $badEntry = new ExceptionLogs();
                         $badEntry->setInsertDate(new \DateTime());
                         $badEntry->setLog($line);
@@ -130,10 +136,11 @@ class DbinitCommand extends Command
                         $em->persist($badEntry);
                     } else {
                         $log->setTimeStamp(strtotime($date->format("Y-m-d h:i:s") ));
-                        $hdfslog = new HdfsLogParserDataXReceiverLog();
-                        $hdfslog->set($formattedLogs['formattedLog']['method']);
-
-                        $log->setHdfsLog($accessLog);
+                        $hdfslog = new HdfsLog();
+                        $hdfslog->setSize(formattedLogs['formattedLog']['blockId']);
+                        $hdfslog->setType(formattedLogs['formattedLog']['blockId']);
+                        $hdfslog->addBlock($blockId);
+                        $log->setHdfsLog($hdfslog);
                         $em->persist($log);
                     }
                 } else {
@@ -152,6 +159,7 @@ class DbinitCommand extends Command
             //flush every 1000 entries to reduce I/O overhead and database constantly locking
             //TODO change ready to flush value to find best flush frequency
             if($counterToFlushWrites % 1000 == 0) {
+                print_r($counterToFlushWrites . "\n");
                 $em->flush();
             }
             $counterToFlushWrites++;

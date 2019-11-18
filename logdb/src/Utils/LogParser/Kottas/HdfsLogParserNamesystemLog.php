@@ -27,6 +27,7 @@ class HdfsLogParserNamesystemLog extends HdfsLogParser
                 "blockId" => $explodedLine[7],
                 "sourceIp" => $explodedLine[10],
                 "destinationIp" => $explodedLine[11],
+                "bid" => str_replace("blk_-","",$explodedLine[7]),
                 "size" => $explodedLine[6],
                 "type" => $explodedLine[5]
             );
@@ -36,6 +37,7 @@ class HdfsLogParserNamesystemLog extends HdfsLogParser
                 "blockId" => $explodedLine[8],
                 "sourceIp" => $explodedLine[10],
                 "destinationIp" => $explodedLine[11],
+                "bid" => str_replace("blk_-","",$explodedLine[7]),
                 "size" => $explodedLine[7],
                 "type" => $explodedLine[6]
             );
