@@ -28,11 +28,6 @@ class Logger
     private $destIp;
 
     /**
-     * @ORM\Column(type="integer")
-     */
-    private $timeStamp;
-
-    /**
      * @ORM\OneToOne(targetEntity="App\Entity\AccessLog", mappedBy="logger_id", cascade={"persist", "remove"})
      */
     private $accessLog;
@@ -41,6 +36,11 @@ class Logger
      * @ORM\OneToOne(targetEntity="App\Entity\HdfsLog", mappedBy="logger_id", cascade={"persist", "remove"})
      */
     private $hdfsLog;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $insertDate;
 
     public function getId(): ?int
     {
@@ -67,18 +67,6 @@ class Logger
     public function setDestIp(string $destIp): self
     {
         $this->destIp = $destIp;
-
-        return $this;
-    }
-
-    public function getTimeStamp(): ?int
-    {
-        return $this->timeStamp;
-    }
-
-    public function setTimeStamp(int $timeStamp): self
-    {
-        $this->timeStamp = $timeStamp;
 
         return $this;
     }
@@ -113,6 +101,18 @@ class Logger
         if ($this !== $hdfsLog->getLoggerId()) {
             $hdfsLog->setLoggerId($this);
         }
+
+        return $this;
+    }
+
+    public function getInsertDate(): ?\DateTimeInterface
+    {
+        return $this->insertDate;
+    }
+
+    public function setInsertDate(\DateTimeInterface $insertDate): self
+    {
+        $this->insertDate = $insertDate;
 
         return $this;
     }

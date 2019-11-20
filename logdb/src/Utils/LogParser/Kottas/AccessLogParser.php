@@ -20,6 +20,18 @@ class AccessLogParser
         "agent" => ""
     );
 
+    private $allowed_methods = [
+        "GET",
+        "PUT",
+        "POST",
+        "DELETE",
+        "UPDATE",
+        "HEAD",
+        "OPTIONS",
+        "CONNECT",
+        "TRACE"
+        ];
+
     //Access.log Formatter
     private function format_log_line($line)
     {
@@ -31,7 +43,7 @@ class AccessLogParser
     {
         $logs = $this->format_log_line($line); // format the line
 
-        if (isset($logs[0])) // check that it formated OK
+        if (isset($logs[0]) &&  in_array($logs[7],$this->allowed_methods) == true) // check that it formated OK
         {
             $formated_log['ip'] = $logs[1];
             $formated_log['identity'] = $logs[2];

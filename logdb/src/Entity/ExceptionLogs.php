@@ -25,13 +25,13 @@ class ExceptionLogs
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $reason;
+     */private $reason;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="datetime")
      */
     private $insertDate;
+
 
     public function getId(): ?int
     {
@@ -62,15 +62,16 @@ class ExceptionLogs
         return $this;
     }
 
-    public function getInsertDate(): ?int
+    public function getInsertDate(): ?\DateTimeInterface
     {
         return $this->insertDate;
     }
 
-    public function setInsertDate(int $insertDate): self
+    public function setInsertDate(\DateTimeInterface $insertDate): self
     {
         $this->insertDate = $insertDate;
 
         return $this;
     }
+
 }

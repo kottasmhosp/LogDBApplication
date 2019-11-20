@@ -86,7 +86,7 @@ class DbinitCommand extends Command
                     $date = \DateTime::createFromFormat("d/M/Y H:i:s", $formattedLogs['formattedLog']['date'] . " " . $formattedLogs['formattedLog']['time']);
                     if (empty($date)) {
                         $badEntry = new ExceptionLogs();
-                        $badEntry->setInsertDate(strtotime($now->format("Y-m-d h:i:s")));
+                        $badEntry->setInsertDate($now);
                         $badEntry->setLog($line);
                         $badEntry->setReason("bad date format");
                         $em->persist($badEntry);
@@ -102,13 +102,13 @@ class DbinitCommand extends Command
                         $log = new Logger();
                         $log->setDestIp($formattedLogs['formattedLog']['identity']);
                         $log->setSourceIp($formattedLogs['formattedLog']['ip']);
-                        $log->setTimeStamp(strtotime($date->format("Y-m-d h:i:s")));
+                        $log->setInsertDate($date);
                         $log->setAccessLog($accessLog);
                         $em->persist($log);
                     }
                 } else {
                     $badEntry = new ExceptionLogs();
-                    $badEntry->setInsertDate(strtotime($now->format("Y-m-d h:i:s")));
+                    $badEntry->setInsertDate($now);
                     $badEntry->setLog($line);
                     $badEntry->setReason("unknown access log format");
                     $em->persist($badEntry);
@@ -120,7 +120,7 @@ class DbinitCommand extends Command
                     $size = 0;
                     if (empty($date)) {
                         $badEntry = new ExceptionLogs();
-                        $badEntry->setInsertDate(strtotime($now->format("Y-m-d h:i:s")));
+                        $badEntry->setInsertDate($now);
                         $badEntry->setLog($line);
                         $badEntry->setReason("bad date format");
                         $em->persist($badEntry);
@@ -143,13 +143,13 @@ class DbinitCommand extends Command
                         $log = new Logger();
                         $log->setDestIp($formattedLogs['formattedLog']['destinationIp']);
                         $log->setSourceIp($formattedLogs['formattedLog']['sourceIp']);
-                        $log->setTimeStamp(strtotime($date->format("Y-m-d h:i:s")));
+                        $log->setInsertDate($date);
                         $log->setHdfsLog($hdfslog);
                         $em->persist($log);
                     }
                 } else {
                     $badEntry = new ExceptionLogs();
-                    $badEntry->setInsertDate(strtotime($now->format("Y-m-d h:i:s")));
+                    $badEntry->setInsertDate($now);
                     $badEntry->setLog($line);
                     $badEntry->setReason("unknown HDFS DataXReceiver log format");
                     $em->persist($badEntry);
@@ -161,7 +161,7 @@ class DbinitCommand extends Command
                     $size = 0;
                     if (empty($date)) {
                         $badEntry = new ExceptionLogs();
-                        $badEntry->setInsertDate(strtotime($now->format("Y-m-d h:i:s")));
+                        $badEntry->setInsertDate($now);
                         $badEntry->setLog($line);
                         $badEntry->setReason("bad date format");
                         $em->persist($badEntry);
@@ -185,14 +185,14 @@ class DbinitCommand extends Command
                             $log = new Logger();
                             $log->setDestIp($destinationIp);
                             $log->setSourceIp($formattedLogs['formattedLog']['sourceIp']);
-                            $log->setTimeStamp(strtotime($date->format("Y-m-d h:i:s")));
+                            $log->setInsertDate($date);
                             $log->setHdfsLog($hdfslog);
                             $em->persist($log);
                         }
                     }
                 } else {
                     $badEntry = new ExceptionLogs();
-                    $badEntry->setInsertDate(strtotime($now->format("Y-m-d h:i:s")));
+                    $badEntry->setInsertDate($now);
                     $badEntry->setLog($line);
                     $badEntry->setReason("unknown HDFS Namesystem log format");
                     $em->persist($badEntry);
@@ -205,6 +205,10 @@ class DbinitCommand extends Command
             if ($counterToFlushWrites % 1000 == 0) {
                 print_r($counterToFlushWrites . "\n");
                 $em->flush();
+            } elseif($counterToFlushWrites % 100001 == 0){
+                $em->clear();
+                gc_enable();
+                gc_collect_cycles();
             }
             $counterToFlushWrites++;
         }
