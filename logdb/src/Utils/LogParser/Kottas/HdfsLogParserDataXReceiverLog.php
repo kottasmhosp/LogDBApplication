@@ -32,8 +32,8 @@ class HdfsLogParserDataXReceiverLog extends HdfsLogParser
                         "timeStamp" => $explodedLine[0] . " " . $explodedLine[1],
                         "blockId" => $explodedLine[7],
                         "bid" => str_replace("blk_", "", $explodedLine[7]),
-                        "sourceIp" => $explodedLine[9],
-                        "destinationIp" => $explodedLine[11],
+                        "sourceIp" => preg_replace(array("/\//","/:[0-9]+/"),array("",""),$explodedLine[9]),
+                        "destinationIp" => preg_replace(array("/\//","/:[0-9]+/"),array("",""),$explodedLine[11]),
                         "size" => $explodedLine[6],
                         "type" => $explodedLine[5]
                     );
@@ -41,8 +41,8 @@ class HdfsLogParserDataXReceiverLog extends HdfsLogParser
                     $this->logsFormat = array(
                         "timeStamp" => $explodedLine[0] . " " . $explodedLine[1],
                         "blockId" => $explodedLine[8],
-                        "sourceIp" => $explodedLine[5],
-                        "destinationIp" => $explodedLine[10],
+                        "sourceIp" =>  preg_replace(array("/\//","/:[0-9]+/"),array("",""),$explodedLine[5]),
+                        "destinationIp" => preg_replace(array("/\//","/:[0-9]+/"),array("",""),$explodedLine[10]),
                         "bid" => str_replace("blk_", "", $explodedLine[8]),
                         "size" => $explodedLine[7],
                         "type" => $explodedLine[6]
@@ -59,8 +59,8 @@ class HdfsLogParserDataXReceiverLog extends HdfsLogParser
                 $this->logsFormat = array(
                     "timeStamp" => $explodedLine[0] . " " . $explodedLine[1],
                     "blockId" => $explodedLine[9],
-                    "sourceIp" => $exceptionLineExploded[0],
-                    "destinationIp" => $explodedLine[11],
+                    "sourceIp" => preg_replace(array("/\//","/:[0-9]+/"),array("",""),$exceptionLineExploded[0]),
+                    "destinationIp" => preg_replace(array("/\//","/:[0-9]+/"),array("",""),$explodedLine[11]),
                     "bid" => str_replace("blk_", "", $explodedLine[9]),
                     "size" => "block",
                     "type" => $explodedLine[8]

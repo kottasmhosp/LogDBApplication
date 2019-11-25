@@ -30,7 +30,7 @@ class HdfsLogParserNamesystemLog extends HdfsLogParser
         } else {
             $this->logsFormat = array(
                 "timeStamp" => $explodedLine[0] . " " . $explodedLine[1],
-                "sourceIp" => $explodedLine[7],
+                "sourceIp" => preg_replace(array("/\//","/:[0-9]+/"),array("",""),$explodedLine[7]),
                 "type" => $explodedLine[9],
                 "destionationIps" => array()
             );
@@ -45,7 +45,7 @@ class HdfsLogParserNamesystemLog extends HdfsLogParser
                     } elseif($column == "datanode(s)"){
                         $isNode = 1;
                     } elseif($isNode == 1){
-                        $this->logsFormat['destinationIps'][] = $column;
+                        $this->logsFormat['destinationIps'][] = preg_replace(array("/\//","/:[0-9]+/"),array("",""),$column);
                     }
                 }
                 $i++;

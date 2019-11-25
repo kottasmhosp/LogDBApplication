@@ -45,8 +45,8 @@ class AccessLogParser
 
         if (isset($logs[0]) &&  in_array($logs[7],$this->allowed_methods) == true) // check that it formated OK
         {
-            $formated_log['ip'] = $logs[1];
-            $formated_log['identity'] = $logs[2];
+            $formated_log['ip'] = str_replace(array("\\","[:[0-9]+]"),"",$logs[1]);
+            $formated_log['identity'] = str_replace(array("\\","[:[0-9]+]"),"",$logs[2]);
             $formated_log['user'] = $logs[3];
             $formated_log['date'] = $logs[4];
             $formated_log['time'] = $logs[5];

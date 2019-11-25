@@ -115,6 +115,7 @@ class DbinitCommand extends Command
                 }
             } elseif ($type == 2) {
                 $formattedLogs = $parser->format_hdfs_DataXReceiver_log_line($line);
+                print_r($formattedLogs);
                 if ($formattedLogs['badEntry'] == false) {
                     $date = \DateTime::createFromFormat("dmy His", $formattedLogs['formattedLog']['timeStamp']);
                     $size = 0;
