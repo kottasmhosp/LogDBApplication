@@ -115,7 +115,6 @@ class DbinitCommand extends Command
                 }
             } elseif ($type == 2) {
                 $formattedLogs = $parser->format_hdfs_DataXReceiver_log_line($line);
-                print_r($formattedLogs);
                 if ($formattedLogs['badEntry'] == false) {
                     $date = \DateTime::createFromFormat("dmy His", $formattedLogs['formattedLog']['timeStamp']);
                     $size = 0;
@@ -172,10 +171,11 @@ class DbinitCommand extends Command
                         $hdfslog->setType($formattedLogs['formattedLog']['type']);
 
                         foreach($formattedLogs['formattedLog']['blocks'] as $block) {
-                            $blockId = $em->getRepository("App\Entity\Block")->findOneBy(array("block_number" => $block));
+                            $blk = str_replace("blk_","",$block);
+                            $blockId = $em->getRepository("App\Entity\Block")->findOneBy(array("block_number" => $blk));
                             if (empty($blockId)) {
                                 $blockId = new Block();
-                                $blockId->setBlockNumber($block);
+                                $blockId->setBlockNumber($blk);
                                 $em->persist($blockId);
                             }
                             $size = $size + 4;
