@@ -10,7 +10,7 @@
 'use strict'
 
 const childProcess = require('child_process')
-const vnu = require('vnu-jar')
+const vnu = require('public/bootstrap-4.0.0/build/vnu-jar')
 
 childProcess.exec('java -version', (error, stdout, stderr) => {
   if (error) {

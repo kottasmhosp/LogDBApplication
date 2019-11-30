@@ -3,6 +3,10 @@ register:
     controller: App\Controller\AuthController::register
     methods: POST
 
+dashboard:
+    path: /dashboard
+    controller: App\Controller\UserLogdbController::index
+
 api:
     path: /api
     controller: App\Controller\AuthController::api

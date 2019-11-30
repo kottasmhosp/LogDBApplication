@@ -8,7 +8,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class UserLogdbController extends AbstractController
 {
     /**
-     * @Route("/user/logdb", name="user_logdb")
+     * @Route("/dashboard", name="user_logdb")
      */
     public function index()
     {

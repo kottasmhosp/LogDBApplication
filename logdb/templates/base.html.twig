@@ -1,36 +1,45 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <meta name="description" content="">
-        <meta name="author" content="">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <style>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>{% block title %}Main Javascripts & Stylesheets!{% endblock %}</title>
+    <style>
 
-            body {
-                background-image: url("../assets/images/dollarphotoclub_66600379-1.jpg");
-                -webkit-background-size: cover;
-                -moz-background-size: cover;
-                background-size: cover;
-                -o-background-size: cover;
-            }
+        body {
+            background-image: url("{{asset("images/dollarphotoclub_66600379-1.jpg")}}");
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            background-size: cover;
+            -o-background-size: cover;
+        }
 
-        </style>
-        {% block stylesheets %}
-            {# 'app' must match the first argument to addEntry() in webpack.config.js #}
-            <link href="../assets/bootstrap-4.0.0/dist/css/bootstrap.css" rel="stylesheet" />
+    </style>
 
-            <link href="../assets/bootstrap-4.0.0/dist/css/bootstrap-theme.css" rel="stylesheet" />
+</head>
+<body>
+{% block body %}{% endblock %}
+<div class="bg"></div>
+{% block javascripts %}
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+            integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+            crossorigin="anonymous"></script>
+    <script src="{{asset("bootstrap-4.0.0/dist/js/bootstrap.js")}}"></script>
+    <script src="{{asset("bootstrap-4.0.0/dist/js/bootstrap.min.js")}}"></script>
+{% endblock %}
 
-        {% endblock %}
+{% block stylesheets %}
+    {# 'app' must match the first argument to addEntry() in webpack.config.js #}
+    <link href="{{asset("bootstrap-4.0.0/dist/css/bootstrap.css")}}" rel="stylesheet"/>
 
-    </head>
-    <body>
-        {% block body %}{% endblock %}
-        <div class="bg"></div>
-        {% block javascripts %}
-            <script src="../assets/bootstrap-4.0.0/dist/js/bootstrap.min.js"></script>
-        {% endblock %}
-    </body>
+    <link href="{{asset("bootstrap-4.0.0/dist/css/bootstrap-theme.css")}}" rel="stylesheet"/>
+
+{% endblock %}
+
+</body>
 </html>
