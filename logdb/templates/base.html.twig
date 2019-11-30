@@ -24,16 +24,13 @@
 <div class="bg"></div>
 {% block javascripts %}
     <script src="{{asset("../node_modules/jquery/dist/jquery.slim.min.js")}}"></script>
-    <script src="{{asset("bootstrap-4.0.0/dist/js/bootstrap.js")}}"></script>
-    <script src="{{asset("bootstrap-4.0.0/dist/js/bootstrap.min.js")}}"></script>
+    <script src="{{asset("../node_modules/popper.js/dist/umd/popper.min.js")}}"></script>
+    <script src="{{asset("../node_modules/bootstrap/dist/js/bootstrap.min.js")}}"></script>
 {% endblock %}
 
 {% block stylesheets %}
     {# 'app' must match the first argument to addEntry() in webpack.config.js #}
-    <link href="{{asset("bootstrap-4.0.0/dist/css/bootstrap.css")}}" rel="stylesheet"/>
-
-    <link href="{{asset("bootstrap-4.0.0/dist/css/bootstrap-theme.css")}}" rel="stylesheet"/>
-
+    <link href="{{asset("../node_modules/bootstrap/dist/css/bootstrap.min.css")}}" rel="stylesheet"/>
 {% endblock %}
 
 </body>
