@@ -157,7 +157,7 @@ class LogSearchController extends AbstractController
 
             $user = $this->getUser();
             $action = new Actions();
-            $action->setAction("User " . "thomas searched logs for type " . $task['logType'] . " per day starting at " . $task['startDate']->format('Y-m-d h:i:s') . " and ended at" . $task['endDate']->format('Y-m-d h:i:s'));
+            $action->setAction("User " . $this->getUser()->getUsername() . " searched logs for type " . $task['logType'] . " per day starting at " . $task['startDate']->format('Y-m-d h:i:s') . " and ended at" . $task['endDate']->format('Y-m-d h:i:s'));
             $action->setUserId($user);
             $entityManager->persist($action);
             $entityManager->flush();
@@ -208,7 +208,7 @@ class LogSearchController extends AbstractController
                 ->fetchAll();
             $user = $this->getUser();
             $action = new Actions();
-            $action->setAction("User " . "thomas searched logs for source ip address " . $task['sourceIps'] . " and destination ip address " . $task['destinationIps']);
+            $action->setAction("User " . $this->getUser()->getUsername() . " searched logs for source ip address " . $task['sourceIps'] . " and destination ip address " . $task['destinationIps']);
             $action->setUserId($user);
             $entityManager->persist($action);
             $entityManager->flush();
