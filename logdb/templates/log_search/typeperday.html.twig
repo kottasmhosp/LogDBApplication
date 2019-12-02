@@ -1,5 +1,5 @@
 {% extends 'base.html.twig' %}
-{% block title %}Most Common Logs Per Source Ip{% endblock %}
+{% block title %}Type Per Day{% endblock %}
 
 {% block body %}
     {% include('navigation.html.twig') %}
@@ -8,8 +8,12 @@
         {{ form_start(form) }}
 
         <div>
-            {{ form_label(form.entryDate, 'Start Date',{'label_attr': {'style': 'color:white'}}) }}
-            {{ form_widget(form.entryDate) }}
+            {{ form_label(form.startDate, 'Start Date',{'label_attr': {'style': 'color:white'}}) }}
+            {{ form_widget(form.startDate) }}
+            {{ form_label(form.endDate, 'End Date',{'label_attr': {'style': 'color:white'}}) }}
+            {{ form_widget(form.endDate) }}
+            {{ form_label(form.logType, 'Log Type',{'label_attr': {'style': 'color:white'}}) }}
+            {{ form_widget(form.logType) }}
         </div>
         <div class="col-sm-10">
             <div class="form-group input-group">
@@ -26,9 +30,8 @@
         <thead>
         <tr>
             <th scope="col">#</th>
-            <th scope="col">Source Ip</th>
-            <th scope="col">Type</th>
             <th scope="col">Total Logs</th>
+            <th scope="col">Date</th>
         </tr>
         </thead>
         {% set index = 1 %}
@@ -38,9 +41,8 @@
             <tbody>
             <tr>
                 <th scope="row">{{ index }}</th>
-                <td>{{ row.source_ip }}</td>
-                <td>{{ row.type }}</td>
-                <td>{{ row.max_count }}</td>
+                <td>{{ row.total_logs }}</td>
+                <td>{{ row.log_insert_date }}</td>
             </tr>
             </tbody>
             {% set index = index + 1 %}

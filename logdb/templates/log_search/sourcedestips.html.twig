@@ -3,6 +3,86 @@
 
 {% block body %}
     {% include('navigation.html.twig') %}
-    <h1>Source Destination Ips! ✅</h1>
+    <form method="post" class="form-signin">
+        {{ form_start(form) }}
+        {{ form_label(form.sourceIps, 'Source Ip',{'label_attr': {'style': 'color:white'}}) }}
+        {{ form_widget(form.sourceIps,{'attr':{'class':'ip_address','id':'ip_address'}}) }}
+        {{ form_label(form.destinationIps, 'Destination Ip',{'label_attr': {'style': 'color:white'}}) }}
+        {{ form_widget(form.destinationIps,{'attr':{'class':'ip_address2','id':'ip_address2'}}) }}
+        <div class="col-sm-10">
+            <div class="form-group input-group">
 
+                <button class="btn btn-lg btn-primary" type="submit">
+                    Search
+                </button>
+            </div>
+        </div>
+        {{ form_end(form) }}
+
+    </form>
+    <table class="table table-dark">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Log Id</th>
+            <th scope="col">Source Ip</th>
+            <th scope="col">Destination Ip</th>
+            <th scope="col">Insert Date</th>
+            <th scope="col">Method</th>
+            <th scope="col">Requested Resource</th>
+            <th scope="col">Response Status</th>
+            <th scope="col">Response Size</th>
+            <th scope="col">Referrer</th>
+            <th scope="col">User Agent</th>
+            <th scope="col">HDFS Type</th>
+            <th scope="col">HDFS Size</th>
+            <th scope="col">HDFS Size</th>
+            <th scope="col">HDFS Block Number</th>
+        </tr>
+        </thead>
+        {% set index = 1 %}
+        {% for row in entity %}
+
+
+            <tbody>
+            <tr>
+                <th scope="row">{{ index }}</th>
+                <td>{{ row.log_id }}</td>
+                <td>{{ row.source_ip }}</td>
+                <td>{{ row.dest_ip }}</td>
+                <td>{{ row.insert_date }}</td>
+                <td>{{ row.method }}</td>
+                <td>{{ row.requested_resource }}</td>
+                <td>{{ row.response_status }}</td>
+                <td>{{ row.response_size }}</td>
+                <td>{{ row.referrer }}</td>
+                <td>{{ row.user_agent }}</td>
+                <td>{{ row.type }}</td>
+                <td>{{ row.size }}</td>
+                <td>{{ row.block_number }}</td>
+            </tr>
+            </tbody>
+            {% set index = index + 1 %}
+        {% endfor %}
+    </table>
+    <script>
+        $(document).ready(function () {
+            $('.ip_address').mask('0ZZ.0ZZ.0ZZ.0ZZ', {
+                translation: {
+                    'Z': {
+                        pattern: /[0-9]/, optional: true
+                    }
+                }
+            });
+            $('.ip_address').mask('099.099.099.099');
+            $('.ip_address2').mask('0ZZ.0ZZ.0ZZ.0ZZ', {
+                translation: {
+                    'Z': {
+                        pattern: /[0-9]/, optional: true
+                    }
+                }
+            });
+            $('.ip_address2').mask('099.099.099.099');
+        });
+    </script>
 {% endblock %}
