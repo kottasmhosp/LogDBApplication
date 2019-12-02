@@ -14,6 +14,7 @@ class UserLogdbController extends AbstractController
     {
         return $this->render('user_logdb/index.html.twig', [
             'controller_name' => 'UserLogdbController',
+            'username' => $this->getUser()->getUsername()
         ]);
     }
 }

@@ -14,9 +14,16 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-#        main:
-#            anonymous: true
+        main:
+            anonymous: true
+            guard:
+                authenticators:
+                    - App\Security\AppLogInAuthenticator
+            logout:
+                path:   app_logout
 
+                #                 where to redirect after logout
+                target: /login
         login:
             pattern:  ^/login
             stateless: true
@@ -28,7 +35,6 @@ security:
             guard:
                 authenticators:
                     - App\Security\AppLogInAuthenticator
-
         register:
             pattern:  ^/register
             stateless: true

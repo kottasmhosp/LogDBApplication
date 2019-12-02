@@ -65,11 +65,10 @@ class LogSearchController extends AbstractController
                 ->query("SELECT total_logs,log_type FROM total_logs_per_type_time_specified('" . $task['startDate']->format('Y-m-d h:i:s') . "', '" . $task['endDate']->format('Y-m-d h:i:s') . "');")
                 ->fetchAll();
 
-            $user = $entityManager->getRepository(User::class)->find(1);
+            $user = $this->getUser();
             $action = new Actions();
             $action->setAction("User " . $user->getUsername() . " searched for logs per type from " . $task['startDate']->format('Y-m-d h:i:s') . " to " . $task['endDate']->format('Y-m-d h:i:s') );
             $action->setUserId($user);
-//            $action->setUserId($this->getUser());
             $entityManager->persist($action);
             $entityManager->flush();
 
@@ -108,11 +107,10 @@ class LogSearchController extends AbstractController
                 ->query("SELECT source_ip,type,max_count FROM most_common_log_per_source_ip_time_specified('" . $task['entryDate']->format('Y-m-d h:i:s') . "');")
                 ->fetchAll();
 
-            $user = $entityManager->getRepository(User::class)->find(1);
+            $user = $this->getUser();
             $action = new Actions();
             $action->setAction("User " . $user->getUsername() . " searched for most common logs per ip for day " . $task['entryDate']->format('Y-m-d h:i:s'));
             $action->setUserId($user);
-//            $action->setUserId($this->getUser());
             $entityManager->persist($action);
             $entityManager->flush();
 
@@ -157,11 +155,10 @@ class LogSearchController extends AbstractController
                 ->query("SELECT total_logs,log_insert_date FROM total_type_logs_per_day_time_specified('" . $task['logType'] . "', '" . $task['startDate']->format('Y-m-d h:i:s') . "', '" . $task['endDate']->format('Y-m-d h:i:s') . "');")
                 ->fetchAll();
 
-            $user = $entityManager->getRepository(User::class)->find(1);
+            $user = $this->getUser();
             $action = new Actions();
             $action->setAction("User " . "thomas searched logs for type " . $task['logType'] . " per day starting at " . $task['startDate']->format('Y-m-d h:i:s') . " and ended at" . $task['endDate']->format('Y-m-d h:i:s'));
             $action->setUserId($user);
-//            $action->setUserId($this->getUser());
             $entityManager->persist($action);
             $entityManager->flush();
 
@@ -209,11 +206,10 @@ class LogSearchController extends AbstractController
             $entity = $entityManager->getConnection()
                 ->query("SELECT log_id ,source_ip, dest_ip , insert_date , access_id , access_logger_id_id , method , requested_resource , response_status , response_size , referrer , user_agent , hdfs_id , hdfs_logger_id , type , size , block_id , block_number FROM search_logs_by_source_or_destination_ip('" . $task['sourceIps'] . "', '" . $task['destinationIps'] . "');")
                 ->fetchAll();
-            $user = $entityManager->getRepository(User::class)->find(1);
+            $user = $this->getUser();
             $action = new Actions();
             $action->setAction("User " . "thomas searched logs for source ip address " . $task['sourceIps'] . " and destination ip address " . $task['destinationIps']);
             $action->setUserId($user);
-//            $action->setUserId($this->getUser());
             $entityManager->persist($action);
             $entityManager->flush();
 
@@ -256,7 +252,8 @@ class LogSearchController extends AbstractController
 
             $em = $this->getDoctrine()->getManager();
             $now = new \DateTime();
-            $actionParameters = "User " . "thomas added new " . $task['logType'] . " logs per type at " . $now->format('Y-m-d h:i:s');
+            $user = $this->getUser();
+            $actionParameters = "User " . $user->getUsername()  . " added new " . $task['logType'] . " logs per type at " . $now->format('Y-m-d h:i:s');
             if($task['logType'] == 'HDFS'){
                 $hdfslog = new HdfsLog();
                 $hdfslog->setSize($task['size']);
@@ -287,7 +284,8 @@ class LogSearchController extends AbstractController
                 }
             } else {
                 $actionParameters = "User "
-                    . "thomas added new "
+                    . $user->getUsername()
+                    . " added new "
                     . $task['logType']
                     . " logs per type at "
                     . $now->format('Y-m-d h:i:s')
@@ -319,12 +317,11 @@ class LogSearchController extends AbstractController
             }
             $em->flush();
 
-            $user = $em->getRepository(User::class)->find(1);
+            $user = $this->getUser();
             $now = new \DateTime();
             $action = new Actions();
             $action->setAction($actionParameters);
             $action->setUserId($user);
-//            $action->setUserId($this->getUser());
             $em->persist($action);
             $em->flush();
 
