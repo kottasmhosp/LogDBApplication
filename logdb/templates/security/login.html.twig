@@ -100,6 +100,11 @@
         {% if error %}
             <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
         {% endif %}
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
         <h4 class="card-title mt-3 text-center" style="color: #ffffff">Sign in to LogDB</h4>
 
         <div class="form-group input-group">

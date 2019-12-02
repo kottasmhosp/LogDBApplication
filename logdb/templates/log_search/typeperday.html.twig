@@ -4,7 +4,11 @@
 {% block body %}
     {% include('navigation.html.twig') %}
     <form method="post" class="form-signin">
-
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger">
+                {{ message }}
+            </div>
+        {% endfor %}
         {{ form_start(form) }}
 
         <div>

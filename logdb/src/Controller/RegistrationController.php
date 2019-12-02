@@ -34,11 +34,17 @@ class RegistrationController extends AbstractController
                 $form->get('username')->getData()
             );
 
+//            $user->setAddress(
+//                $form->get('address')->getData()
+//            );
+            //            $user->setEmail(
+//                $form->get('email')->getData()
+//            );
 
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($user);
             $entityManager->flush();
-            $this->addFlash('notice', 'Thank you for register!!');
+            $this->addFlash('success', 'Successfully registered!!');
             // do anything else you need here, like send an email
 
             return $this->redirectToRoute('app_login');

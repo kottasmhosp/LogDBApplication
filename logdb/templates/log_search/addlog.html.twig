@@ -73,12 +73,21 @@
 
         </style>
     </head>
-
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
     <form method="post" class="form-signin">
 
         {{ form_start(form) }}
 
-        <h4 class="card-title mt-3 text-center" style="color: #ffffff">Add New Log</h4>
+        <h4 class="card-title mt-3 text-center" style="color: #ffffff">Add New Log(All fields required)</h4>
 
 
         <li>
