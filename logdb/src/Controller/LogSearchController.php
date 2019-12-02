@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Actions;
+use App\Form\AddLogType;
 use App\Form\DateSearchAndTypeType;
 use App\Form\DateSearchType;
 use App\Form\MostCommonType;
@@ -229,24 +230,22 @@ class LogSearchController extends AbstractController
      */
     public function addlog(Request $request, EntityManagerInterface $entityManager)
     {
-        $form = $this->createForm(SourceDestIpsType::class);
+        $form = $this->createForm(AddLogType::class);
+
+        $form->handleRequest($request);
+        $form = $this->createForm(AddLogType::class);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $task = $form->getData();
-            if ($task['startDate']->format('Y-m-d h:i:s') >= $task['endDate']->format('Y-m-d h:i:s')) {
-                return $this->render('log_search/pertype.html.twig', [
-                    'controller_name' => 'LogSearchController',
-                    'errorMessage' => "Start date is later or same day than end date. Please provide at least 1 day difference",
-                    'form' => $this->createForm(SourceDestIpsType::class)->createView(),
-                    'entity' => array()
-                ]);
-            }
-
-
-            $entity = $entityManager->getConnection()
-                ->query("SELECT total_logs,log_type FROM total_logs_per_type_time_specified(" . $task['logType'] . " '" . $task['startDate']->format('Y-m-d h:i:s') . "', '" . $task['endDate']->format('Y-m-d h:i:s') . "');")
-                ->fetchAll();
+//            if ($task['startDate']->format('Y-m-d h:i:s') >= $task['endDate']->format('Y-m-d h:i:s')) {
+//                return $this->render('log_search/addlog.html.twig', [
+//                    'controller_name' => 'LogSearchController',
+//                    'errorMessage' => "Start date is later or same day than end date. Please provide at least 1 day difference",
+//                    'form' => $this->createForm(AddLogType::class)->createView(),
+//                    'entity' => array()
+//                ]);
+//            }
 
 //            $action = new Actions();
 //            $action->setAction("Code 1: User " . "Thominho 999" . " searched total logs per type from " . $task['startDate']->format('Y-m-d h:i:s') . " to " . $task['endDate']->format('Y-m-d h:i:s'));
@@ -255,14 +254,14 @@ class LogSearchController extends AbstractController
 //            $em->getEntityManager()->persist($action);
 //            $em->getEntityManager()->flush();
 
-            return $this->render('log_search/sourcedestips.html.twig', [
+            return $this->render('log_search/addlog.html.twig', [
                 'controller_name' => 'LogSearchController',
                 'form' => $form->createView(),
-                'entity' => $entity
+                'entity' => array()
             ]);
         }
 
-        return $this->render('log_search/sourcedestips.html.twig', [
+        return $this->render('log_search/addlog.html.twig', [
             'controller_name' => 'LogSearchController',
             'form' => $form->createView(),
             'entity' => array()
