@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\RegistrationFormType;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,8 +15,12 @@ class RegistrationController extends AbstractController
 {
     /**
      * @Route("/register", name="app_register")
+     * @param Request $request
+     * @param UserPasswordEncoderInterface $passwordEncoder
+     * @param EntityManagerInterface $entityManager
+     * @return Response
      */
-    public function register(Request $request, UserPasswordEncoderInterface $passwordEncoder): Response
+    public function register(Request $request, UserPasswordEncoderInterface $passwordEncoder,EntityManagerInterface $entityManager): Response
     {
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
@@ -49,7 +54,10 @@ class RegistrationController extends AbstractController
 
             return $this->redirectToRoute('app_login');
         }
-        $this->addFlash('error', 'Duplicate Username. Please pick another one');
+        $user = $entityManager->getRepository(User::class)->findBy(array('username' => $form->get('username')->getData()));
+        if(!empty($user)) {
+            $this->addFlash('error', 'Duplicate Username. Please pick another one');
+        }
 
         return $this->render('registration/register.html.twig', [
             'registrationForm' => $form->createView(),
