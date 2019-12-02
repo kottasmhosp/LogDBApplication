@@ -34,12 +34,12 @@ class RegistrationController extends AbstractController
                 $form->get('username')->getData()
             );
 
-//            $user->setAddress(
-//                $form->get('address')->getData()
-//            );
-            //            $user->setEmail(
-//                $form->get('email')->getData()
-//            );
+            $user->setAddress(
+                $form->get('address')->getData()
+            );
+                        $user->setEmail(
+                $form->get('email')->getData()
+            );
 
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($user);

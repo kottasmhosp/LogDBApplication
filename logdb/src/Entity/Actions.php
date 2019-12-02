@@ -16,11 +16,7 @@ class Actions
      * @ORM\Column(type="integer")
      */
     private $id;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $action;
+    
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="actions")
@@ -28,9 +24,27 @@ class Actions
      */
     private $userId;
 
+    /**
+     * @ORM\Column(type="text")
+     */
+    private $action;
+
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+
+    public function getUserId(): ?User
+    {
+        return $this->userId;
+    }
+
+    public function setUserId(?User $userId): self
+    {
+        $this->userId = $userId;
+
+        return $this;
     }
 
     public function getAction(): ?string
@@ -41,18 +55,6 @@ class Actions
     public function setAction(string $action): self
     {
         $this->action = $action;
-
-        return $this;
-    }
-
-    public function getUserId(): ?User
-    {
-        return $this->userId;
-    }
-
-    public function setUserId(?User $userId): self
-    {
-        $this->userId = $userId;
 
         return $this;
     }

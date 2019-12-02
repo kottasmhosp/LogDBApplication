@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20191120184029 extends AbstractMigration
+final class Version20191202182359 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -30,14 +30,14 @@ final class Version20191120184029 extends AbstractMigration
         $this->addSql('CREATE SEQUENCE public.block_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
         $this->addSql('CREATE SEQUENCE public.exception_logs_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
         $this->addSql('CREATE TABLE public.logger (id INT NOT NULL, source_ip VARCHAR(255) NOT NULL, dest_ip VARCHAR(255) NOT NULL, insert_date TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
-        $this->addSql('CREATE TABLE public.actions (id INT NOT NULL, user_id_id INT NOT NULL, action VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE public.actions (id INT NOT NULL, user_id_id INT NOT NULL, action TEXT NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_3E6C3F539D86650F ON public.actions (user_id_id)');
         $this->addSql('CREATE TABLE public.hdfs_log (id INT NOT NULL, logger_id_id INT NOT NULL, type VARCHAR(255) NOT NULL, size INT NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_58F60F8339DACAC9 ON public.hdfs_log (logger_id_id)');
         $this->addSql('CREATE TABLE hdfs_log_block (hdfs_log_id INT NOT NULL, block_id INT NOT NULL, PRIMARY KEY(hdfs_log_id, block_id))');
         $this->addSql('CREATE INDEX IDX_DA9101EDA0269BD ON hdfs_log_block (hdfs_log_id)');
         $this->addSql('CREATE INDEX IDX_DA9101EE9ED820C ON hdfs_log_block (block_id)');
-        $this->addSql('CREATE TABLE public."user" (id INT NOT NULL, username VARCHAR(255) NOT NULL, password VARCHAR(500) NOT NULL, is_active BOOLEAN NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE public."user" (id INT NOT NULL, username VARCHAR(255) NOT NULL, password VARCHAR(500) NOT NULL, is_active BOOLEAN NOT NULL, address VARCHAR(255) DEFAULT NULL, email VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE TABLE public.access_log (id INT NOT NULL, logger_id_id INT NOT NULL, method VARCHAR(255) NOT NULL, requested_resource TEXT NOT NULL, response_status INT NOT NULL, response_size INT NOT NULL, referer TEXT NOT NULL, user_agent TEXT NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_4A412C4E39DACAC9 ON public.access_log (logger_id_id)');
         $this->addSql('CREATE TABLE public.block (id INT NOT NULL, block_number BIGINT NOT NULL, PRIMARY KEY(id))');
