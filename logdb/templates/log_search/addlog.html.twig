@@ -167,7 +167,7 @@
             <div class="form-group input-group">
 
                 <button class="btn btn-lg btn-primary" type="submit">
-                    Search
+                    Add
                 </button>
             </div>
         </div>
@@ -197,8 +197,8 @@
                     $("#ss").css("display", "none");
                 }
             });
-            $('.add_log_destinationIps').hide();
-            $('.add_log_destinationIps').hide();
+            $('#add_log_destinationIps').hide();
+            $('#add_log_blockIds').hide();
             $('.add-another-collection-widget').click(function (e) {
                 var list = jQuery(jQuery(this).attr('data-list-selector'));
                 // Try to find the counter of the list or use the length of the list
@@ -221,6 +221,12 @@
                 // create a new list element and add it to the list
                 var newElem = jQuery(list.attr('data-widget-tags')).html(newWidget);
                 newElem.appendTo(list);
+                var $removeFormA = $('<a href="#" class="delete_button_link btn btn-danger">Delete</a>');
+                newElem.append($removeFormA);
+                $removeFormA.on('click', function(e){
+                    e.preventDefault();
+                    newElem.remove();
+                });
 
                 //Replace to mask ip address
                 counter--;
@@ -233,13 +239,6 @@
                         }
                     }
                 });
-            });
-            $('.remove-another-collection-widget').click(function (e) {
-                var list = jQuery(jQuery(this).attr('data-list-selector'));
-                // Try to find the counter of the list or use the length of the list
-                var counter = list.data('widget-counter') || list.children().length;
-                counter = counter + 2;
-                $('.' + "ip_address" + counter ).remove();
             });
 
             $('.add-another-block-collection-widget').click(function (e) {
@@ -261,6 +260,12 @@
                 // create a new list element and add it to the list
                 var newElem = jQuery(list.attr('data-widget-tags')).html(newWidget);
                 newElem.appendTo(list);
+                var $removeFormA = $('<a href="#" class="delete_button_link btn btn-danger">Delete</a>');
+                newElem.append($removeFormA);
+                $removeFormA.on('click', function(e){
+                    e.preventDefault();
+                    newElem.remove();
+                });
             });
         });
     </script>

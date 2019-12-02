@@ -25,17 +25,18 @@ class AddLogType extends AbstractType
                 'required' => true
             ])
             ->add('destinationIps', CollectionType::class, [
-                'entry_type'   => TextType::class,
-                'allow_add'    => true,
+                'entry_type' => TextType::class,
+                'allow_add' => true,
                 'allow_delete' => true,
-                'prototype'    => true,
-                'required'     => true,
-                'attr'         => [
+                'prototype' => true,
+                'required' => true,
+                'label' => false,
+                'attr' => [
                     'class' => "ip_address2",
                     'id' => 'ip_address2'
                 ]
             ])
-            ->add('logType',ChoiceType::class, [
+            ->add('logType', ChoiceType::class, [
                 'choices' => ['Access Log' => "Access", 'HDFS Log' => "HDFS"],
             ])
             ->add('type', TextType::class, [
@@ -72,13 +73,13 @@ class AddLogType extends AbstractType
                 'required' => false,
             ])
             ->add('blockIds', CollectionType::class, [
-                'entry_type'   => IntegerType::class,
-                'allow_add'    => true,
+                'entry_type' => IntegerType::class,
+                'allow_add' => true,
                 'allow_delete' => true,
-                'prototype'    => true,
-                'required'     => true
-            ])
-        ;
+                'prototype' => true,
+                'required' => true,
+                'label' => false
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver)
