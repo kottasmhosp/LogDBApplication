@@ -5,11 +5,13 @@ namespace App\Document;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
+use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\Bundle\MongoDBBundle\Validator\Constraints\Unique as MongoDBUnique;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * @MongoDB\Document(collection="User")
- * @MongoDB\
+ * Document(collection="User")
+ * @MongoDBUnique(fields="username")
  */
 class User implements UserInterface
 {
@@ -30,7 +32,7 @@ class User implements UserInterface
     private $password;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @MongoDB\Field(type="int")
      */
     private $isActive;
 
@@ -50,7 +52,6 @@ class User implements UserInterface
     {
         $this->isActive = TRUE;
         $this->username = $username;
-        $this->actions = new ArrayCollection();
     }
 
     public function getId(): ?int

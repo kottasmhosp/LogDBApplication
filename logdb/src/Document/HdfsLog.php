@@ -26,7 +26,7 @@ class HdfsLog
     private $size;
 
     /**
-     * @EmbedMany(targetDocument=Block::class)
+     * @MongoDB\EmbedMany(targetDocument=Block::class)
      */
     private $blocks;
 
@@ -89,8 +89,6 @@ class HdfsLog
 
         return $this;
     }
-
-
 
 
 }

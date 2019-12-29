@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @MongoDB\Document(collection="Logs")
+ *
  */
 class Log
 {
@@ -75,7 +76,7 @@ class Log
 
     //Blocks
     /**
-     * @MongoDB\Field(type="hash") @Index
+     * @MongoDB\Field(type="hash") @MongoDB\Index
      */
     private $blocks;
 
