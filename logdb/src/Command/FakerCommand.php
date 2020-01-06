@@ -2,20 +2,11 @@
 
 namespace App\Command;
 
-use App\Entity\AccessLog;
-use App\Entity\Block;
-use App\Entity\ExceptionLogs;
-use App\Entity\HdfsLog;
-use App\Entity\Logger;
-use App\Utils\LogParser\Kottas\AccessLogParser;
-use App\Utils\LogParser\Kottas\HdfsLogParserDataXReceiverLog;
-use App\Utils\LogParser\Kottas\HdfsLogParserNamesystemLog;
-use Cassandra\Date;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\QueryBuilder;
-use Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper;
-use Kassner\LogParser\LogParser;
+use App\Document\Log;
+use App\Document\User;
+use Doctrine\ODM\MongoDB\DocumentManager as DocumentManager;
+use Faker\Factory;
+use Faker\Generator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -28,6 +19,11 @@ class FakerCommand extends Command
 {
     protected static $defaultName = 'faker';
     private $container;
+    /**
+     * @var Generator
+     */
+    protected $faker;
+    private $dm;
 
     protected function configure()
     {
@@ -35,17 +31,29 @@ class FakerCommand extends Command
             ->setDescription('Fake data for PHP');
     }
 
-    public function __construct(ContainerInterface $container)
+    public function __construct(ContainerInterface $container,DocumentManager $dm)
     {
         parent::__construct();
         $this->container = $container;
+        //Load factory early
+        $this->faker = Factory::create();
+        $this->dm = $dm;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
 
+        print_r($this->faker->firstName() . "\n");
+        print_r($this->faker->address . "\n");
+        print_r($this->faker->userName . "\n");
+        print_r($this->faker->password . "\n");
+        print_r( "\n");
 
+        print_r($this->faker->firstName() . "\n");
+        print_r($this->faker->address . "\n");
+        print_r($this->faker->userName . "\n");
+        print_r($this->faker->password . "\n");
 
         $io->success('Command completed Successfully');
     }

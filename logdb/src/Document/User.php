@@ -10,7 +10,7 @@ use Doctrine\Bundle\MongoDBBundle\Validator\Constraints\Unique as MongoDBUnique;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * Document(collection="User")
+ * @MongoDB\Document(collection="Users")
  * @MongoDBUnique(fields="username")
  */
 class User implements UserInterface

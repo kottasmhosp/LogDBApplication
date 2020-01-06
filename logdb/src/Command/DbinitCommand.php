@@ -10,12 +10,11 @@ use App\Entity\Logger;
 use App\Utils\LogParser\Kottas\AccessLogParser;
 use App\Utils\LogParser\Kottas\HdfsLogParserDataXReceiverLog;
 use App\Utils\LogParser\Kottas\HdfsLogParserNamesystemLog;
-use Cassandra\Date;
+use App\Utils\LogParser\Kassner\LogParser;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper;
-use Kassner\LogParser\LogParser;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -61,13 +60,13 @@ class DbinitCommand extends Command
         $type = '';
         $totalPathDirectories = count($pathTree);
         $parser = '';
-        if ($pathTree[$totalPathDirectories - 1] == 'access.log') {
+        if ($pathTree[$totalPathDirectories - 1] == 'access.log' || $pathTree[$totalPathDirectories - 1] == 'access_part2.log' || $pathTree[$totalPathDirectories - 1] == 'access_part3.log' || $pathTree[$totalPathDirectories - 1] == 'acces_last.log') {
             $type = 1;
             $parser = new AccessLogParser();
-        } elseif ($pathTree[$totalPathDirectories - 1] == 'HDFS_DataXceiver.log') {
+        } elseif ($pathTree[$totalPathDirectories - 1] == 'HDFS_DataXceiver.log' || $pathTree[$totalPathDirectories - 1] == 'HDFS_DataXceive_part2.log' || $pathTree[$totalPathDirectories - 1] == 'HDFS_DataXceiver_final.log' ) {
             $type = 2;
             $parser = new HdfsLogParserDataXReceiverLog();
-        } elseif ($pathTree[$totalPathDirectories - 1] == 'HDFS_FS_Namesystem.log') {
+        } elseif ($pathTree[$totalPathDirectories - 1] == 'HDFS_FS_Namesystem_part1.log' || $pathTree[$totalPathDirectories - 1] == 'HDFS_FS_Namesystem_part2.log') {
             $type = 3;
             $parser = new HdfsLogParserNamesystemLog();
         } else {
@@ -167,7 +166,6 @@ class DbinitCommand extends Command
                         $em->persist($badEntry);
                     } else {
                         $hdfslog = new HdfsLog();
-                        $hdfslog->setSize($size);
                         $hdfslog->setType($formattedLogs['formattedLog']['type']);
 
                         foreach($formattedLogs['formattedLog']['blocks'] as $block) {
@@ -182,6 +180,7 @@ class DbinitCommand extends Command
                             $hdfslog->addBlock($blockId);
                         }
 
+                        $hdfslog->setSize($size);
                         foreach($formattedLogs['formattedLog']['destinationIps'] as $destinationIp){
                             $log = new Logger();
                             $log->setDestIp($destinationIp);

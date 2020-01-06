@@ -4,6 +4,7 @@ namespace App\Document;
 
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use Doctrine\Common\Collections\ArrayCollection;
+use MongoDB\Collection;
 
 /**
  * @MongoDB\Document(collection="Logs")
@@ -76,13 +77,13 @@ class Log
 
     //Blocks
     /**
-     * @MongoDB\Field(type="hash") @MongoDB\Index
+     * @MongoDB\Field(type="collection") @MongoDB\Index
      */
     private $blocks;
 
     public function __construct()
     {
-        $this->blocks = new ArrayCollection();
+        $this->blocks = array();
     }
 
     //General fields Setters-Getters
@@ -201,20 +202,6 @@ class Log
         return $this;
     }
 
-
-    //Block Setters-Getters
-    public function getBlockNumber(): ?string
-    {
-        return $this->block_number;
-    }
-
-    public function setBlockNumber(string $block_number): self
-    {
-        $this->block_number = $block_number;
-
-        return $this;
-    }
-
     //HDFS Setters-Getters
     public function getType(): ?string
     {
@@ -243,27 +230,41 @@ class Log
     //Block Setter-Getter
 
     /**
-     * @return Collection|Block[]
+     * @return Array
      */
-    public function getBlocks(): Collection
+    public function getBlocks(): array
     {
         return $this->blocks;
     }
 
-    public function addBlock(Block $block): self
+    public function addBlock(int $block): self
     {
-        if (!$this->blocks->contains($block)) {
+        if (!in_array($block, $this->blocks)) {
             $this->blocks[] = $block;
         }
 
         return $this;
     }
 
-    public function removeBlock(Block $block): self
+    public function setBlock(array $block): self
+    {
+        $this->blocks = $block;
+
+        return $this;
+    }
+
+    public function removeBlock(int $block): self
     {
         if ($this->blocks->contains($block)) {
             $this->blocks->removeElement($block);
         }
+
+        return $this;
+    }
+
+    public function setBlockNull(): self
+    {
+        $this->blocks = NULL;
 
         return $this;
     }
