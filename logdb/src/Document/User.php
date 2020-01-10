@@ -47,6 +47,11 @@ class User implements UserInterface
      */
     private $email;
 
+    /**
+     * @MongoDB\Field(type="collection")
+     */
+    private $roles;
+
 
     public function __construct($username = NULL)
     {
@@ -69,6 +74,11 @@ class User implements UserInterface
         $this->username = $username;
 
         return $this;
+    }
+
+    public function getSalt(): ?string
+    {
+        return null;
     }
 
     public function getPassword(): ?string
@@ -94,17 +104,6 @@ class User implements UserInterface
 
         return $this;
     }
-
-    public function getRoles()
-    {
-        return array('ROLE_USER');
-    }
-
-    public function getSalt()
-    {
-        return null;
-    }
-
 
     public function eraseCredentials()
     {
@@ -134,5 +133,23 @@ class User implements UserInterface
         return $this;
     }
 
+    /**
+     * @see UserInterface
+     */
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
 
 }

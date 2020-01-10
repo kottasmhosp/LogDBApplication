@@ -1,6 +1,11 @@
+app_register_jwt:
+    path: /api/register_jwt
+    controller: App\Controller\AuthController::register_jwt
+    methods: POST
+
 register:
     path: /register
-    controller: App\Controller\AuthController::register
+    controller: App\Controller\RegistrationController::register
     methods: POST
 
 dashboard:
@@ -10,6 +15,9 @@ dashboard:
 api:
     path: /api
     controller: App\Controller\AuthController::api
+
+api_login_check:
+    path: /api/login_check
 
 login_check:
     path:     /login_check

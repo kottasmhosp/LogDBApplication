@@ -2,7 +2,6 @@
 
 namespace App\Command;
 
-use App\Document\Log;
 use App\Document\User;
 use Doctrine\ODM\MongoDB\DocumentManager as DocumentManager;
 use Faker\Factory;
@@ -14,11 +13,13 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class FakerCommand extends Command
 {
     protected static $defaultName = 'faker';
     private $container;
+    private $encoder;
     /**
      * @var Generator
      */
@@ -31,29 +32,31 @@ class FakerCommand extends Command
             ->setDescription('Fake data for PHP');
     }
 
-    public function __construct(ContainerInterface $container,DocumentManager $dm)
+    public function __construct(ContainerInterface $container,DocumentManager $dm,UserPasswordEncoderInterface $encoder)
     {
         parent::__construct();
         $this->container = $container;
         //Load factory early
         $this->faker = Factory::create();
         $this->dm = $dm;
+        $this->encoder = $encoder;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
 
-        print_r($this->faker->firstName() . "\n");
-        print_r($this->faker->address . "\n");
-        print_r($this->faker->userName . "\n");
-        print_r($this->faker->password . "\n");
-        print_r( "\n");
-
-        print_r($this->faker->firstName() . "\n");
-        print_r($this->faker->address . "\n");
-        print_r($this->faker->userName . "\n");
-        print_r($this->faker->password . "\n");
+        for($i=1;$i<=10000;$i++){
+            echo "Insert Admin" . $i;
+            $admin = new User();
+            $admin->setUsername($this->faker->userName);
+            $admin->setAddress($this->faker->address);
+            $admin->setEmail($this->faker->email);
+            $admin->setPassword($this->encoder->encodePassword($admin, $this->faker->password));
+            $admin->setRoles('{ROLE_ADMIN}');
+            $this->dm->persist($admin);
+        }
+        $this->dm->flush();
 
         $io->success('Command completed Successfully');
     }

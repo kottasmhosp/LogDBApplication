@@ -22,10 +22,10 @@ class RegistrationController extends AbstractController
      */
     public function register(Request $request, UserPasswordEncoderInterface $passwordEncoder,EntityManagerInterface $entityManager): Response
     {
+        /** @var User $user */
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
             // encode the plain password
             $user->setPassword(
@@ -51,7 +51,6 @@ class RegistrationController extends AbstractController
             $entityManager->flush();
             $this->addFlash('success', 'Successfully registered!!');
             // do anything else you need here, like send an email
-
             return $this->redirectToRoute('app_login');
         }
         $user = $entityManager->getRepository(User::class)->findBy(array('username' => $form->get('username')->getData()));
