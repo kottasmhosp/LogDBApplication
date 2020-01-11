@@ -2,8 +2,10 @@
 
 namespace App\Command;
 
+use App\Document\Log;
 use App\Document\User;
 use Doctrine\ODM\MongoDB\DocumentManager as DocumentManager;
+use Doctrine\ODM\MongoDB\MongoDBException;
 use Faker\Factory;
 use Faker\Generator;
 use Symfony\Component\Console\Command\Command;
@@ -29,7 +31,7 @@ class FakerCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Fake data for PHP');
+            ->setDescription('Fake data for Admins');
     }
 
     public function __construct(ContainerInterface $container,DocumentManager $dm,UserPasswordEncoderInterface $encoder)
@@ -42,22 +44,47 @@ class FakerCommand extends Command
         $this->encoder = $encoder;
     }
 
+    /**
+     *
+     * Description : Generate Admins but also,
+     * Ensure that 1/3 of the logs have at least one upvote
+     * ,and no administrator has more than 1000 upvotes.
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return int|void|null
+     * @throws MongoDBException
+     *
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $io = new SymfonyStyle($input, $output);
+        $io2 = new SymfonyStyle($input, $output);
 
-        for($i=1;$i<=10000;$i++){
-            echo "Insert Admin" . $i;
-            $admin = new User();
-            $admin->setUsername($this->faker->userName);
-            $admin->setAddress($this->faker->address);
-            $admin->setEmail($this->faker->email);
-            $admin->setPassword($this->encoder->encodePassword($admin, $this->faker->password));
-            $admin->setRoles('{ROLE_ADMIN}');
-            $this->dm->persist($admin);
+        $totalVotes = $this->dm->createQueryBuilder(Log::class)
+            ->count() / 3;
+
+        $currentVotes = 1;
+        $currentAdmins = 0;
+        while($currentVotes < $totalVotes){
+
+            $logs = $this->dm->createAggregationBuilder(Log::class)->sample($totalVotes);
+            foreach($logs as $log){
+                $currentAdminVotes = 0;
+                $currentAdmins++;
+                echo "Insert Admin" . $currentAdmins;
+                $admin = new User();
+                $admin->setUsername($this->faker->userName);
+                $admin->setAddress($this->faker->address);
+                $admin->setEmail($this->faker->email);
+                $admin->setPassword($this->encoder->encodePassword($admin, $this->faker->password));
+                $admin->setPhone($this->faker->phoneNumber);
+                $admin->setRoles('{ROLE_ADMIN}');
+                $this->dm->persist($admin);
+            }
+
+
         }
         $this->dm->flush();
 
-        $io->success('Command completed Successfully');
+        $io2->success('Command completed Successfully');
     }
 }

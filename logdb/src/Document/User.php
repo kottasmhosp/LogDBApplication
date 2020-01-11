@@ -48,6 +48,11 @@ class User implements UserInterface
     private $email;
 
     /**
+     * @MongoDB\Field(type="string")
+     */
+    private $phone_number;
+
+    /**
      * @MongoDB\Field(type="collection")
      */
     private $roles;
@@ -129,6 +134,18 @@ class User implements UserInterface
     public function setEmail(?string $email): self
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    public function getPhoneNumber(): ?string
+    {
+        return $this->phone_number;
+    }
+
+    public function setPhoneNumber(?string $phone_number): self
+    {
+        $this->phone_number = $phone_number;
 
         return $this;
     }

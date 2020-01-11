@@ -230,7 +230,7 @@ class Log
     //Block Setter-Getter
 
     /**
-     * @return Array
+     * @return array
      */
     public function getBlocks(): array
     {
