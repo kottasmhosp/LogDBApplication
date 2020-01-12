@@ -2,13 +2,11 @@
 
 namespace App\Command;
 
-use App\Document\Log;
 use App\Document\ExceptionLogs;
+use App\Document\Log;
 use App\Utils\LogParser\Kottas\AccessLogParser;
 use App\Utils\LogParser\Kottas\HdfsLogParserDataXReceiverLog;
 use App\Utils\LogParser\Kottas\HdfsLogParserNamesystemLog;
-use App\Utils\LogParser\Kassner\LogParser;
-use Doctrine\ODM\MongoDB\DocumentManager as DocumentManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -57,7 +55,7 @@ class MongoDbinitCommand extends Command
         if ($pathTree[$totalPathDirectories - 1] == 'access.log' || $pathTree[$totalPathDirectories - 1] == 'access_part2.log' || $pathTree[$totalPathDirectories - 1] == 'access_part3.log' || $pathTree[$totalPathDirectories - 1] == 'acces_last.log') {
             $type = 1;
             $parser = new AccessLogParser();
-        } elseif ($pathTree[$totalPathDirectories - 1] == 'HDFS_DataXceiver.log' || $pathTree[$totalPathDirectories - 1] == 'HDFS_DataXceive_part2.log' || $pathTree[$totalPathDirectories - 1] == 'HDFS_DataXceiver_final.log' ) {
+        } elseif ($pathTree[$totalPathDirectories - 1] == 'HDFS_DataXceiver.log' || $pathTree[$totalPathDirectories - 1] == 'HDFS_DataXceive_part2.log' || $pathTree[$totalPathDirectories - 1] == 'HDFS_DataXceiver_final.log') {
             $type = 2;
             $parser = new HdfsLogParserDataXReceiverLog();
         } elseif ($pathTree[$totalPathDirectories - 1] == 'HDFS_FS_Namesystem_part1.log' || $pathTree[$totalPathDirectories - 1] == 'HDFS_FS_Namesystem_part2.log') {
@@ -148,8 +146,8 @@ class MongoDbinitCommand extends Command
                         $blk = array();
 
                         //Creat an array from blocks
-                        foreach($formattedLogs['formattedLog']['blocks'] as $block) {
-                            $cblk = intval(str_replace("blk_","",$block));
+                        foreach ($formattedLogs['formattedLog']['blocks'] as $block) {
+                            $cblk = intval(str_replace("blk_", "", $block));
                             $size = $size + 4;
                             if (!in_array($cblk, $blk)) {
                                 $blk[] = $cblk;
@@ -157,7 +155,7 @@ class MongoDbinitCommand extends Command
                         }
 
                         //Set log for each destinationIp
-                        foreach($formattedLogs['formattedLog']['destinationIps'] as $destinationIp){
+                        foreach ($formattedLogs['formattedLog']['destinationIps'] as $destinationIp) {
                             $log = new Log();
                             $log->setType($formattedLogs['formattedLog']['type']);
                             $log->setDestIp($destinationIp);
@@ -183,7 +181,7 @@ class MongoDbinitCommand extends Command
             if ($counterToFlushWrites % 1000 == 0) {
                 print_r($counterToFlushWrites . "\n");
                 $dm->flush();
-            } elseif($counterToFlushWrites % 100001 == 0){
+            } elseif ($counterToFlushWrites % 100001 == 0) {
                 $dm->clear();
                 gc_enable();
                 gc_collect_cycles();

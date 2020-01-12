@@ -3,7 +3,10 @@
 namespace App\Controller;
 
 use App\Document\Log;
+use App\Document\User;
+use App\Document\Vote;
 use Doctrine\ODM\MongoDB\DocumentManager;
+use Doctrine\ODM\MongoDB\MongoDBException;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -45,15 +48,105 @@ class MongoDbApiController extends AbstractController
 
     /**
      * Query 1 : Find the total logs per type that were created within a specified time range
-     * and sort them ina descending order.
+     * and sort them in a descending order.
      * Please note that individual files may log actions of more than one type.
      *
      * @Route("/api/db/logs/pertyp/timerange", name="mongo_db_total_logs_per_type_time_range")
      * @param Request $request
      * @return Response
+     * @throws Exception
      */
     public function total_logs_per_type_time_range(Request $request)
     {
+        $payload = json_decode($request->getContent(), true);
+
+        $startDate = '';
+        $endDate = '';
+
+        if (empty($payload['startDate'])) {
+            return new Response(
+                json_encode("Missing "),
+                Response::HTTP_OK,
+                ['content-type' => 'application/json']
+            );
+        } elseif (empty($payload['endDate'])) {
+            return new Response(
+                json_encode("Missing end date"),
+                Response::HTTP_OK,
+                ['content-type' => 'application/json']
+            );
+        } else {
+            $startDate = \DateTime::createFromFormat("Y-m-d", $payload["startDate"]);
+            if (empty($startDate)) {
+                return new Response(
+                    json_encode("Wrong start date format should be : Y-m-d"),
+                    Response::HTTP_OK,
+                    ['content-type' => 'application/json']
+                );
+            }
+
+            $endDate = \DateTime::createFromFormat("Y-m-d", $payload["endDate"]);
+            if (empty($endDate)) {
+                return new Response(
+                    json_encode("Wrong end date format should be : Y-m-d"),
+                    Response::HTTP_OK,
+                    ['content-type' => 'application/json']
+                );
+            }
+
+            /**
+             * Return empty array
+             *
+             */
+            if ($payload["startDate"] > $payload["endDate"]) {
+                return new Response(
+                    json_encode(array()),
+                    Response::HTTP_OK,
+                    ['content-type' => 'application/json']
+                );
+            }
+
+        }
+
+        /**
+         * Use getPipeline to get NoSQL query
+         */
+        $resultSql = $this->dm->createAggregationBuilder(Log::class)
+            ->match()
+            ->field('insertDate')
+            ->gte($startDate->format("Y-m-d\TH:i:s.000\Z"))
+            ->lt($endDate->format("Y-m-d\TH:i:s.000\Z"))
+            ->group()
+            ->field('id')
+            ->expression('$type')
+            ->field('count')
+            ->sum(1)
+            ->sort(array("count" => -1))
+            ->execute();
+
+        $resultPipeline = $this->dm->createAggregationBuilder(Log::class)
+            ->match()
+            ->field("insertDate")
+            ->gte($startDate->format("Y-m-d\TH:i:s.000\Z"))
+            ->lt($endDate->format("Y-m-d\TH:i:s.000\Z"))
+            ->group()
+            ->field('id')
+            ->expression('$type')
+            ->field('count')
+            ->sum(1)
+            ->sort(array("count" => -1))
+            ->getPipeline();
+
+        foreach ($resultSql as $result) {
+            print_r("Here is loop: \n");
+            print_r($resultPipeline);
+            print_r($result);
+            exit();
+        }
+
+        print_r($resultPipeline);
+        exit();
+
         return $this->render('mongo_db_api/index.html.twig', [
             'controller_name' => 'MongoDbApiController',
         ]);
@@ -68,6 +161,8 @@ class MongoDbApiController extends AbstractController
      */
     public function total_logs_per_day_time_type(Request $request)
     {
+        $payload = json_decode($request->getContent(), true);
+
         return $this->render('mongo_db_api/index.html.twig', [
             'controller_name' => 'MongoDbApiController',
         ]);
@@ -134,6 +229,8 @@ class MongoDbApiController extends AbstractController
      */
     public function fifty_most_up_voted(Request $request)
     {
+        $payload = json_decode($request->getContent(), true);
+
         return $this->render('mongo_db_api/index.html.twig', [
             'controller_name' => 'MongoDbApiController',
         ]);
@@ -161,6 +258,7 @@ class MongoDbApiController extends AbstractController
      */
     public function top_fifty_administrators_total_number_of_source_ips()
     {
+
         return $this->render('mongo_db_api/index.html.twig', [
             'controller_name' => 'MongoDbApiController',
         ]);
@@ -189,6 +287,8 @@ class MongoDbApiController extends AbstractController
      */
     public function block_ids_by_name_voted(Request $request)
     {
+        $payload = json_decode($request->getContent(), true);
+
         return $this->render('mongo_db_api/index.html.twig', [
             'controller_name' => 'MongoDbApiController',
         ]);
@@ -232,7 +332,16 @@ class MongoDbApiController extends AbstractController
                 $log->setDestIp($destIp);
                 $log->setSize(4 * count($payload['blocks']));
                 $this->dm->persist($log);
+                $this->dm->flush();
+
+                return new Response(
+                    json_encode("Successfully inserted HDFS log"),
+                    Response::HTTP_OK,
+                    ['content-type' => 'application/json']
+                );
             }
+
+
         } elseif ($payload['log'] == "access") {
             $log = new Log();
             $log->setSourceIp($payload['sourceIp']);
@@ -248,10 +357,16 @@ class MongoDbApiController extends AbstractController
             $log->setResponseSize($payload['responseSize']);
             $log->setMethod($payload['method']);
             $log->setUserAgent($payload["userAgent"]);
+            $log->setBlockNull();
             $this->dm->persist($log);
-        }
+            $this->dm->flush();
 
-        $this->dm->flush();
+            return new Response(
+                json_encode("Successfully inserted Access log"),
+                Response::HTTP_OK,
+                ['content-type' => 'application/json']
+            );
+        }
 
         return new Response(
             json_encode("Unrecognized log type"),
@@ -266,12 +381,74 @@ class MongoDbApiController extends AbstractController
      * @Route("/api/db/castvote", name="mongo_db_castvote")
      * @param Request $request
      * @return Response
+     * @throws MongoDBException
      */
     public function castVote(Request $request)
     {
-        return $this->render('mongo_db_api/index.html.twig', [
-            'controller_name' => 'MongoDbApiController',
-        ]);
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $payload = json_decode($request->getContent(), true);
+
+        $logExists = $this->dm->createQueryBuilder(Log::class)
+            ->hydrate(true)
+            ->field("id")
+            ->equals($payload["logId"])
+            ->count()
+            ->getQuery()
+            ->execute();
+
+        if ($logExists == 0) {
+            return new Response(
+                json_encode("Log with id " . $payload["logId"] . " do not exist"),
+                Response::HTTP_OK,
+                ['content-type' => 'application/json']
+            );
+        }
+
+        $voteExists = $this->dm->createQueryBuilder(Vote::class)
+            ->hydrate(true)
+            ->field("log_id")
+            ->equals($payload["logId"])
+            ->count()
+            ->getQuery()
+            ->execute();
+
+        if ($voteExists == 0) {
+            $vote = new Vote();
+            $vote->setLogId($payload["logId"]);
+            $vote->addAdminId($user->getId());
+            $this->dm->persist($vote);
+            $this->dm->flush();
+        } else {
+            $hasVoted = $this->dm->createQueryBuilder(Vote::class)
+                ->field("log_id")
+                ->equals($payload["logId"])
+                ->field("admin_ids")
+                ->equals($user->getId())
+                ->count()
+                ->getQuery()
+                ->execute();
+
+            if ($hasVoted == 0) {
+                $hasVoted->addAdminId($user->getId());
+                $this->dm->persist($hasVoted);
+                $this->dm->flush();
+            } else {
+                return new Response(
+                    json_encode("User " . $user->getUsername() . " has casted a vote to log id " . $payload["logId"] . " again"),
+                    Response::HTTP_OK,
+                    ['content-type' => 'application/json']
+                );
+            }
+
+        }
+
+        return new Response(
+            json_encode("Successfully casted a vote to log id " . $payload["logId"]),
+            Response::HTTP_OK,
+            ['content-type' => 'application/json']
+        );
     }
 
     /**

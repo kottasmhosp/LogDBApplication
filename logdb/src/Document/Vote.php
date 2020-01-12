@@ -24,14 +24,19 @@ class Vote
     /**
      * @MongoDB\Field(type="collection") @MongoDB\Index
      */
-    private $admin_id;
+    private $admin_ids;
 
     /**
      * @MongoDB\Field(type="string") @MongoDB\Index
      */
     private $log_id;
 
-    public function getId(): ?int
+    public function __construct()
+    {
+        $this->admin_ids = array();
+    }
+
+    public function getId(): ?string
     {
         return $this->id;
     }
@@ -41,13 +46,13 @@ class Vote
      */
     public function getAdminId(): array
     {
-        return $this->admin_id;
+        return $this->admin_ids;
     }
 
     public function addAdminId(string $admin_id): self
     {
-        if (!in_array($admin_id, $this->admin_id)) {
-            $this->admin_id[] = $admin_id;
+        if (!in_array($admin_id, $this->admin_ids)) {
+            $this->admin_ids[] = $admin_id;
         }
 
         return $this;
@@ -58,9 +63,9 @@ class Vote
         return $this->log_id;
     }
 
-    public function setLogId(string $admin_id): self
+    public function setLogId(string $log_id): self
     {
-        $this->admin_id = $admin_id;
+        $this->log_id = $log_id;
 
         return $this;
     }

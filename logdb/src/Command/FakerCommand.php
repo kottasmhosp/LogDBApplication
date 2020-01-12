@@ -34,7 +34,7 @@ class FakerCommand extends Command
             ->setDescription('Fake data for Admins');
     }
 
-    public function __construct(ContainerInterface $container,DocumentManager $dm,UserPasswordEncoderInterface $encoder)
+    public function __construct(ContainerInterface $container, DocumentManager $dm, UserPasswordEncoderInterface $encoder)
     {
         parent::__construct();
         $this->container = $container;
@@ -60,14 +60,14 @@ class FakerCommand extends Command
         $io2 = new SymfonyStyle($input, $output);
 
         $totalVotes = $this->dm->createQueryBuilder(Log::class)
-            ->count() / 3;
+                ->count() / 3;
 
         $currentVotes = 1;
         $currentAdmins = 0;
-        while($currentVotes < $totalVotes){
+        while ($currentVotes < $totalVotes) {
 
             $logs = $this->dm->createAggregationBuilder(Log::class)->sample($totalVotes);
-            foreach($logs as $log){
+            foreach ($logs as $log) {
                 $currentAdminVotes = 0;
                 $currentAdmins++;
                 echo "Insert Admin" . $currentAdmins;
