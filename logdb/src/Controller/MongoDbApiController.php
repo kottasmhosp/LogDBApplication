@@ -3,11 +3,15 @@
 namespace App\Controller;
 
 use App\Document\Log;
+use App\Document\Query1;
+use App\Document\Query2;
 use App\Document\User;
 use App\Document\Vote;
+use Doctrine\ODM\MongoDB\Aggregation\Builder;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ODM\MongoDB\MongoDBException;
 use Exception;
+use MongoDB\BSON\UTCDateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -51,7 +55,7 @@ class MongoDbApiController extends AbstractController
      * and sort them in a descending order.
      * Please note that individual files may log actions of more than one type.
      *
-     * @Route("/api/db/logs/pertyp/timerange", name="mongo_db_total_logs_per_type_time_range")
+     * @Route("/api/db/logs/pertype/timerange", name="mongo_db_total_logs_per_type_time_range")
      * @param Request $request
      * @return Response
      * @throws Exception
@@ -111,11 +115,13 @@ class MongoDbApiController extends AbstractController
         /**
          * Use getPipeline to get NoSQL query
          */
+        /** @var Builder $resultSql */
         $resultSql = $this->dm->createAggregationBuilder(Log::class)
+            ->hydrate(Query1::class)
             ->match()
             ->field('insertDate')
-            ->gte($startDate->format("Y-m-d\TH:i:s.000\Z"))
-            ->lt($endDate->format("Y-m-d\TH:i:s.000\Z"))
+            ->gte(new UTCDateTime(strtotime($startDate->format("Y-m-d\TH:i:s.v\Z")) * 1000))
+            ->lt(new UTCDateTime(strtotime($endDate->format("Y-m-d\TH:i:s.v\Z")) * 1000))
             ->group()
             ->field('id')
             ->expression('$type')
@@ -124,32 +130,20 @@ class MongoDbApiController extends AbstractController
             ->sort(array("count" => -1))
             ->execute();
 
-        $resultPipeline = $this->dm->createAggregationBuilder(Log::class)
-            ->match()
-            ->field("insertDate")
-            ->gte($startDate->format("Y-m-d\TH:i:s.000\Z"))
-            ->lt($endDate->format("Y-m-d\TH:i:s.000\Z"))
-            ->group()
-            ->field('id')
-            ->expression('$type')
-            ->field('count')
-            ->sum(1)
-            ->sort(array("count" => -1))
-            ->getPipeline();
-
+        $response = array();
         foreach ($resultSql as $result) {
-            print_r("Here is loop: \n");
-            print_r($resultPipeline);
-            print_r($result);
-            exit();
+            /** @var Query2 $result */
+            $response[] = array(
+                "type" => $result->getId(),
+                "total_number" => $result->getCount()
+            );
         }
 
-        print_r($resultPipeline);
-        exit();
-
-        return $this->render('mongo_db_api/index.html.twig', [
-            'controller_name' => 'MongoDbApiController',
-        ]);
+        return new Response(
+            json_encode($response),
+            Response::HTTP_OK,
+            ['content-type' => 'application/json']
+        );
     }
 
     /**
@@ -163,9 +157,124 @@ class MongoDbApiController extends AbstractController
     {
         $payload = json_decode($request->getContent(), true);
 
-        return $this->render('mongo_db_api/index.html.twig', [
-            'controller_name' => 'MongoDbApiController',
-        ]);
+        $startDate = '';
+        $endDate = '';
+
+        if (empty($payload['startDate'])) {
+            return new Response(
+                json_encode("Missing "),
+                Response::HTTP_OK,
+                ['content-type' => 'application/json']
+            );
+        } elseif (empty($payload['endDate'])) {
+            return new Response(
+                json_encode("Missing end date"),
+                Response::HTTP_OK,
+                ['content-type' => 'application/json']
+            );
+        } else {
+            $startDate = \DateTime::createFromFormat("Y-m-d", $payload["startDate"]);
+            if (empty($startDate)) {
+                return new Response(
+                    json_encode("Wrong start date format should be : Y-m-d"),
+                    Response::HTTP_OK,
+                    ['content-type' => 'application/json']
+                );
+            }
+
+            $endDate = \DateTime::createFromFormat("Y-m-d", $payload["endDate"]);
+            if (empty($endDate)) {
+                return new Response(
+                    json_encode("Wrong end date format should be : Y-m-d"),
+                    Response::HTTP_OK,
+                    ['content-type' => 'application/json']
+                );
+            }
+
+            /**
+             * Return empty array
+             *
+             */
+            if ($payload["startDate"] > $payload["endDate"]) {
+                return new Response(
+                    json_encode(array()),
+                    Response::HTTP_OK,
+                    ['content-type' => 'application/json']
+                );
+            }
+
+        }
+
+        $resultSql = '';
+        if (empty($payload['type'])) {
+            /** @var Builder $resultSql */
+            $resultSql = $this->dm->createAggregationBuilder(Log::class)
+                ->hydrate(Query2::class)
+                ->match()
+                ->field('insertDate')
+                ->gte(new UTCDateTime(strtotime($startDate->format("Y-m-d\TH:i:s.v\Z")) * 1000))
+                ->lt(new UTCDateTime(strtotime($endDate->format("Y-m-d\TH:i:s.v\Z")) * 1000))
+                ->field('type')
+                ->exists(0)
+                ->group()
+                ->field('id')
+                ->expression(
+                    $this->dm->createAggregationBuilder(Log::class)->expr()
+                        ->field('type')
+                        ->expression('$type')
+                        ->field('day')
+                        ->dayOfMonth('$insertDate')
+                        ->field('month')
+                        ->month('$insertDate')
+                        ->field('year')
+                        ->year('$insertDate')
+                )
+                ->field('count')
+                ->sum(1)
+                ->sort(array("count" => -1))
+                ->execute();
+        } else {
+            /** @var Builder $resultSql */
+            $resultSql = $this->dm->createAggregationBuilder(Log::class)
+                ->hydrate(Query2::class)
+                ->match()
+                ->field('insertDate')
+                ->gte(new UTCDateTime(strtotime($startDate->format("Y-m-d\TH:i:s.v\Z")) * 1000))
+                ->lt(new UTCDateTime(strtotime($endDate->format("Y-m-d\TH:i:s.v\Z")) * 1000))
+                ->field('type')
+                ->equals($payload['type'])
+                ->group()
+                ->field('id')
+                ->expression(
+                    $this->dm->createAggregationBuilder(Log::class)->expr()
+                        ->field('type')
+                        ->expression('$type')
+                        ->field('day')
+                        ->dayOfMonth('$insertDate')
+                        ->field('month')
+                        ->month('$insertDate')
+                        ->field('year')
+                        ->year('$insertDate')
+                )
+                ->field('count')
+                ->sum(1)
+                ->execute();
+        }
+
+        $response = array();
+        foreach ($resultSql as $result) {
+            /** @var Query2 $result */
+            $response[] = array(
+                "timestamp" => $result->getId()['day'] . "-" . $result->getId()['month'] . "-" . $result->getId()['year'],
+                "total_number" => $result->getCount()
+            );
+        }
+
+        return new Response(
+            json_encode($response),
+            Response::HTTP_OK,
+            ['content-type' => 'application/json']
+        );
     }
 
     /**

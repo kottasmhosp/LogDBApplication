@@ -29,7 +29,7 @@ class Log
     private $destIp;
 
     /**
-     * @MongoDB\Field(type="date")
+     * @MongoDB\Field(type="timestamp")
      */
     private $insertDate;
 
@@ -116,12 +116,12 @@ class Log
         return $this;
     }
 
-    public function getInsertDate(): ?\DateTimeInterface
+    public function getInsertDate(): ?int
     {
         return $this->insertDate;
     }
 
-    public function setInsertDate(\DateTimeInterface $insertDate): self
+    public function setInsertDate(int $insertDate): self
     {
         $this->insertDate = $insertDate;
 
