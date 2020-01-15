@@ -7,6 +7,7 @@ use App\Document\Query1;
 use App\Document\Query2;
 use App\Document\Query3;
 use App\Document\Query4;
+use App\Document\Query5;
 use App\Document\User;
 use App\Document\Vote;
 use Doctrine\ODM\MongoDB\Aggregation\Builder;
@@ -467,7 +468,6 @@ class MongoDbApiController extends AbstractController
          * Use getPipeline to get NoSQL query
          * Only access logs
          */
-        /** @var Builder $resultSql */
         $aggregator = $this->dm->createAggregationBuilder(Log::class)
             ->hydrate(Query4::class)
             ->match()
@@ -492,6 +492,7 @@ class MongoDbApiController extends AbstractController
         /**
          * limit results to 2
          */
+        /** @var Builder $resultSql */
         $resultSql = $aggregator
             ->limit(2)
             ->execute();
@@ -515,14 +516,70 @@ class MongoDbApiController extends AbstractController
     /**
      * Query 5 : Find the referrers (if any) that
      * have led to more than one resources.
+     * DISTINCT RESOURCES
      *
      * @Route("/api/db/referrers/repeaters", name="mongo_db_referrers_repeeaters")
      */
     public function referrers_repeaters()
     {
-        return $this->render('mongo_db_api/index.html.twig', [
-            'controller_name' => 'MongoDbApiController',
-        ]);
+
+        /**
+         * Count all groups of referer
+         * and requested resource
+         */
+        $aggregator = $this->dm->createAggregationBuilder(Log::class)
+            ->hydrate(Query5::class)
+            ->group()
+            ->field('id')
+            ->expression(
+                $this->dm->createAggregationBuilder(Log::class)
+                    ->expr()
+                    ->field('referer')
+                    ->expression('$referer')
+                    ->field('requestedResource')
+                    ->expression('$requestedResource')
+            )
+            ->field('count')
+            ->sum(1);
+
+        /**
+         * Count distinct value for each group
+         */
+        $aggregator = $aggregator
+            ->group()
+            ->field('id')
+            ->expression(
+                $this->dm->createAggregationBuilder(Log::class)
+                    ->expr()
+                    ->field('referer')
+                    ->expression('$_id.referer')
+            )
+            ->field('totalCount')
+            ->sum('$count')
+            ->field("distinctValues")
+            ->sum(1)
+            ->match()
+            ->field('distinctValues')
+            ->gt(1);
+
+        /** @var Builder $resultSql */
+        $resultSql = $aggregator
+            ->execute();
+
+        $response = array();
+        foreach ($resultSql as $result) {
+            /** @var Query5 $result */
+            $response[] = array(
+                "referer" => $result->getId(),
+                "distinctValues" => $result->getDistinctValues()
+            );
+        }
+
+        return new Response(
+            json_encode($response),
+            Response::HTTP_OK,
+            ['content-type' => 'application/json']
+        );
     }
 
     /**
