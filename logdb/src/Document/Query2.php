@@ -28,7 +28,7 @@ class Query2 {
     }
 
     /**
-     * @return type
+     * @return integer
      */
     public function getType(){
         return $this->type;

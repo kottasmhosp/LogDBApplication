@@ -1,21 +1,23 @@
 <?php
 
+
 namespace App\Document;
 
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use Doctrine\Common\Collections\ArrayCollection;
 use MongoDB\Collection;
-
 /**
  * @MongoDB\QueryResultDocument
  *
  */
-class Query1 {
-    /** @MongoDB\Field(type="string") */
+class Query3
+{
+
+    /** @MongoDB\Field(type="collection") */
     private $_id;
 
-    /** @MongoDB\Field(type="int") */
-    private $count;
+    /** @MongoDB\Field(type="collection") */
+    private $total_types_per_sourceIp;
 
     /**
      * @return string
@@ -25,10 +27,10 @@ class Query1 {
     }
 
     /**
-     * @return integer
+     * @return array
      */
-    public function getCount(){
-        return $this->count;
+    public function getTotalTypesPerSourceIp(){
+        return $this->total_types_per_sourceIp;
     }
 
 }

@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Document\Log;
 use App\Document\Query1;
 use App\Document\Query2;
+use App\Document\Query3;
+use App\Document\Query4;
 use App\Document\User;
 use App\Document\Vote;
 use Doctrine\ODM\MongoDB\Aggregation\Builder;
@@ -282,12 +284,123 @@ class MongoDbApiController extends AbstractController
      * per source IP for a specific day.
      *
      * @Route("/api/db/logs/sourceip/threemostcommon", name="mongo_db_three_most_common_logs")
+     * @param Request $request
+     * @return Response
+     * @throws Exception
      */
-    public function three_most_common_logs()
+    public function three_most_common_logs(Request $request)
     {
-        return $this->render('mongo_db_api/index.html.twig', [
-            'controller_name' => 'MongoDbApiController',
-        ]);
+
+        $payload = json_decode($request->getContent(), true);
+
+        $searchDate = '';
+
+        if (empty($payload['searchDate'])) {
+            return new Response(
+                json_encode("Missing search date"),
+                Response::HTTP_OK,
+                ['content-type' => 'application/json']
+            );
+        } else {
+            $searchDate = \DateTime::createFromFormat("Y-m-d", $payload["searchDate"]);
+            if (empty($searchDate)) {
+                return new Response(
+                    json_encode("Wrong start date format should be : Y-m-d"),
+                    Response::HTTP_OK,
+                    ['content-type' => 'application/json']
+                );
+            }
+        }
+
+        $endDate = \DateTime::createFromFormat('Y-m-d\T00:00:00.00\Z', $searchDate->format("Y-m-d\T00:00:00.00\Z"));
+        $endDate->add(new \DateInterval('P1D'));
+        /** @var Builder $aggregator */
+        $aggregator = $this->dm->createAggregationBuilder(Log::class);
+
+        /**
+         * Match only this day
+         */
+        $aggregator = $aggregator
+            ->hydrate(Query3::class)
+            ->match()
+            ->field('insertDate')
+            ->gte(new UTCDateTime(strtotime($searchDate->format("Y-m-d\T00:00:00.00\Z")) * 1000))
+            ->lt(new UTCDateTime(strtotime($endDate->format("Y-m-d\T00:00:00.00\Z")) * 1000));
+
+        /**
+         * Count all groups per source ip
+         * and type to create the extra column
+         * typeCount and sort it descending
+         */
+        $aggregator = $aggregator
+            ->group()
+            ->field('id')
+            ->expression(
+                $this->dm->createAggregationBuilder(Log::class)
+                    ->expr()
+                    ->field('type')
+                    ->expression('$type')
+                    ->field('sourceIp')
+                    ->expression('$sourceIp')
+            )
+            ->field('typeCount')
+            ->sum(1)
+            ->sort(array("typeCount" => -1));
+
+        /**
+         * Group by source Ip and push for each
+         * group all typeCount and type from
+         * previous stage
+         *
+         */
+        $aggregator = $aggregator
+            ->group()
+            ->field('id')
+            ->expression(
+                $this->dm->createAggregationBuilder(Log::class)
+                    ->expr()
+                    ->field('sourceIp')
+                    ->expression('$_id.sourceIp')
+            )
+            ->field('total_types_per_sourceIp')
+            ->push(
+                array(
+                    'type' => '$_id.type',
+                    'count' => '$typeCount'
+                )
+            )
+            ->field('count')
+            ->sum('$typeCount');
+
+        /**
+         * Project only 3
+         * As we have order descending
+         * projecting only three will project top3
+         */
+        $aggregator = $aggregator->project()
+            ->field('total_types_per_sourceIp')
+            ->slice('$total_types_per_sourceIp', 3);
+
+        /** @var Builder $resultSql */
+        $resultSql = $aggregator
+            ->execute();
+
+
+        $response = array();
+
+        /** @var Query3 $result */
+        foreach ($resultSql as $result) {
+            $responsePayload = array();
+            $responsePayload['sourceIp'] = $result->getId();
+            $responsePayload['top3'] = $result->getTotalTypesPerSourceIp();
+            $response[] = $responsePayload;
+        }
+
+        return new Response(
+            json_encode($response),
+            Response::HTTP_OK,
+            ['content-type' => 'application/json']
+        );
     }
 
     /**
@@ -295,12 +408,108 @@ class MongoDbApiController extends AbstractController
      * with regards to a given time range.
      *
      * @Route("/api/db/methods/twoleastcommon", name="mongo_db_two_least_common_methods")
+     * @param Request $request
+     * @return Response
      */
-    public function two_least_common_http_methods()
+    public function two_least_common_http_methods(Request $request)
     {
-        return $this->render('mongo_db_api/index.html.twig', [
-            'controller_name' => 'MongoDbApiController',
-        ]);
+        $payload = json_decode($request->getContent(), true);
+
+        $startDate = '';
+        $endDate = '';
+
+        if (empty($payload['startDate'])) {
+            return new Response(
+                json_encode("Missing start date"),
+                Response::HTTP_OK,
+                ['content-type' => 'application/json']
+            );
+        } elseif (empty($payload['endDate'])) {
+            return new Response(
+                json_encode("Missing end date"),
+                Response::HTTP_OK,
+                ['content-type' => 'application/json']
+            );
+        } else {
+            $startDate = \DateTime::createFromFormat("Y-m-d", $payload["startDate"]);
+            if (empty($startDate)) {
+                return new Response(
+                    json_encode("Wrong start date format should be : Y-m-d"),
+                    Response::HTTP_OK,
+                    ['content-type' => 'application/json']
+                );
+            }
+
+            $endDate = \DateTime::createFromFormat("Y-m-d", $payload["endDate"]);
+            if (empty($endDate)) {
+                return new Response(
+                    json_encode("Wrong end date format should be : Y-m-d"),
+                    Response::HTTP_OK,
+                    ['content-type' => 'application/json']
+                );
+            }
+
+            /**
+             * Return empty array
+             *
+             */
+            if ($payload["startDate"] > $payload["endDate"]) {
+                return new Response(
+                    json_encode(array()),
+                    Response::HTTP_OK,
+                    ['content-type' => 'application/json']
+                );
+            }
+
+        }
+
+        /**
+         * Use getPipeline to get NoSQL query
+         * Only access logs
+         */
+        /** @var Builder $resultSql */
+        $aggregator = $this->dm->createAggregationBuilder(Log::class)
+            ->hydrate(Query4::class)
+            ->match()
+            ->field('insertDate')
+            ->gte(new UTCDateTime(strtotime($startDate->format("Y-m-d\TH:i:s.v\Z")) * 1000))
+            ->lt(new UTCDateTime(strtotime($endDate->format("Y-m-d\TH:i:s.v\Z")) * 1000))
+            ->field('type')
+            ->exists(0);
+
+        /**
+         * Group by HTTP methods
+         * and sort ascending
+         */
+        $aggregator = $aggregator
+            ->group()
+            ->field('id')
+            ->expression('$method')
+            ->field('count')
+            ->sum(1)
+            ->sort(array("count" => 1));
+
+        /**
+         * limit results to 2
+         */
+        $resultSql = $aggregator
+            ->limit(2)
+            ->execute();
+
+        $response = array();
+        /** @var Query4 $result */
+        foreach ($resultSql as $result) {
+            $response[] = array(
+                "HttpMethod" => $result->getId(),
+                "Total" => $result->getCount()
+            );
+        }
+
+        return new Response(
+            json_encode($response),
+            Response::HTTP_OK,
+            ['content-type' => 'application/json']
+        );
     }
 
     /**
