@@ -8,6 +8,7 @@ use App\Document\Query2;
 use App\Document\Query3;
 use App\Document\Query4;
 use App\Document\Query5;
+use App\Document\Query6;
 use App\Document\User;
 use App\Document\Vote;
 use Doctrine\ODM\MongoDB\Aggregation\Builder;
@@ -268,7 +269,7 @@ class MongoDbApiController extends AbstractController
         foreach ($resultSql as $result) {
             /** @var Query2 $result */
             $response[] = array(
-                "timestamp" => $result->getId()['day'] . "-" . $result->getId()['month'] . "-" . $result->getId()['year'],
+                "timestamp" => $result->getId()['year'] . "-" . $result->getId()['month'] . "-" . $result->getId()['day'],
                 "total_number" => $result->getCount()
             );
         }
@@ -590,9 +591,100 @@ class MongoDbApiController extends AbstractController
      */
     public function blocks_replicated_served_same_day()
     {
-        return $this->render('mongo_db_api/index.html.twig', [
-            'controller_name' => 'MongoDbApiController',
-        ]);
+
+        /**
+         * Pick only replicated and serve block types
+         */
+        $aggregator = $this->dm->createAggregationBuilder(Log::class)
+            ->hydrate(Query6::class)
+            ->match()
+            ->field('type')
+            ->in(
+                array(
+                    'Served',
+                    'replicate'
+                )
+            );
+
+        /**
+         * Unwind blocks array
+         */
+        $aggregator = $aggregator
+            ->unwind('$blocks');
+
+
+        /**
+         * Count all groups of referer
+         * and requested resource
+         */
+        $aggregator = $aggregator
+            ->group()
+            ->field('id')
+            ->expression(
+                $this->dm->createAggregationBuilder(Log::class)
+                    ->expr()
+                    ->field('blockId')
+                    ->expression('$blocks')
+                    ->field('type')
+                    ->expression('$type')
+                    ->field('day')
+                    ->dayOfMonth('$insertDate')
+                    ->field('month')
+                    ->month('$insertDate')
+                    ->field('year')
+                    ->year('$insertDate')
+            );
+
+        /**
+         * Count distinct value for each group
+         */
+        $aggregator = $aggregator
+            ->group()
+            ->field('id')
+            ->expression(
+                $this->dm->createAggregationBuilder(Log::class)
+                    ->expr()
+                    ->field('blockId')
+                    ->expression('$_id.blockId')
+                    ->field('day')
+                    ->expression('$_id.day')
+                    ->field('month')
+                    ->expression('$_id.month')
+                    ->field('year')
+                    ->expression('$_id.year')
+            )
+            ->field('distinct_types')
+            ->push(
+                array(
+                    'type' => '$_id.type'
+                )
+            )
+            ->field("distinctValues")
+            ->sum(1);
+
+        $aggregator = $aggregator
+            ->match()
+            ->field('distinctValues')
+            ->gt(1);
+
+        /** @var Builder $resultSql */
+        $resultSql = $aggregator
+            ->execute();
+
+        $response = array();
+        foreach ($resultSql as $result) {
+            /** @var Query6 $result */
+            $response[] = array(
+                "blockId" => $result->getId()['blockId'],
+                "date" => $result->getId()['year'] . "-" . $result->getId()['month'] . "-" . $result->getId()['day']
+            );
+        }
+
+        return new Response(
+            json_encode($response),
+            Response::HTTP_OK,
+            ['content-type' => 'application/json']
+        );
     }
 
     /**

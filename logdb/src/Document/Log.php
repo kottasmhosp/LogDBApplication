@@ -2,6 +2,7 @@
 
 namespace App\Document;
 
+use DateTime;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use Doctrine\Common\Collections\ArrayCollection;
 use MongoDB\Collection;
@@ -29,7 +30,7 @@ class Log
     private $destIp;
 
     /**
-     * @MongoDB\Field(type="timestamp")
+     * @MongoDB\Field(type="date")
      */
     private $insertDate;
 
@@ -116,12 +117,12 @@ class Log
         return $this;
     }
 
-    public function getInsertDate(): ?int
+    public function getInsertDate(): ?\DateTimeInterface
     {
         return $this->insertDate;
     }
 
-    public function setInsertDate(int $insertDate): self
+    public function setInsertDate(\DateTimeInterface $insertDate): self
     {
         $this->insertDate = $insertDate;
 
