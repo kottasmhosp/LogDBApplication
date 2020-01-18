@@ -693,27 +693,126 @@ class MongoDbApiController extends AbstractController
      * @Route("/api/db/vote/mostupvoted/topfifty", name="mongo_db_fifty_most_upvoted")
      * @param Request $request
      * @return Response
+     * @throws Exception
      */
     public function fifty_most_up_voted(Request $request)
     {
+
         $payload = json_decode($request->getContent(), true);
 
-        return $this->render('mongo_db_api/index.html.twig', [
-            'controller_name' => 'MongoDbApiController',
-        ]);
+        $searchDate = '';
+
+        if (empty($payload['searchDate'])) {
+            return new Response(
+                json_encode("Missing search date"),
+                Response::HTTP_OK,
+                ['content-type' => 'application/json']
+            );
+        } else {
+            $searchDate = \DateTime::createFromFormat("Y-m-d", $payload["searchDate"]);
+            if (empty($searchDate)) {
+                return new Response(
+                    json_encode("Wrong start date format should be : Y-m-d"),
+                    Response::HTTP_OK,
+                    ['content-type' => 'application/json']
+                );
+            }
+        }
+
+        $endDate = \DateTime::createFromFormat('Y-m-d\T00:00:00.00\Z', $searchDate->format("Y-m-d\T00:00:00.00\Z"));
+        $endDate->add(new \DateInterval('P1D'));
+
+        /**
+         * Get only search date logs
+         * Convert ObjectId to string
+         */
+        /** @var Builder $aggregator */
+        $aggregator = $this->dm->createAggregationBuilder(Log::class)
+            ->match()
+            ->field('insertDate')
+            ->gte(new UTCDateTime(strtotime($searchDate->format("Y-m-d\TH:i:s.v\Z")) * 1000))
+            ->lt(new UTCDateTime(strtotime($endDate->format("Y-m-d\TH:i:s.v\Z")) * 1000))
+            ->field('id')
+            ->addFields()
+            ->field("id")
+            ->expression(
+                array(
+                    '$toString' => '$_id'
+                )
+            );
+
+        /**
+         * Join Votes and Logs
+         */
+        $aggregator = $aggregator
+            ->lookup('Votes')
+            ->localField('_id')
+            ->foreignField('log_id')
+            ->alias('votes');
+
+        /**
+         * Count total votes for each log
+         */
+        $aggregator = $aggregator
+            ->addFields()
+            ->field('totalVotes')
+            ->size('$votes.admin_ids');
+
+        /**
+         * Sort and return 50 top voted
+         */
+        $aggregator = $aggregator
+            ->sort('totalVotes', -1)
+            ->limit(50);
+
+        $resultSql = $aggregator->execute();
+
+        $response = array();
+        foreach ($resultSql as $result) {
+            $response[] = array(
+                "type" => $result
+            );
+        }
+
+        return new Response(
+            json_encode($response),
+            Response::HTTP_OK,
+            ['content-type' => 'application/json']
+        );
     }
 
     /**
      * Query 8 : Find the fifty most active administrators,
-     * with regard to the total number of upvotes.
+     * with regard to the total number of upvotes
      *
-     * @Route("/api/db/api", name="mongo_db_api")
+     * @Route("/api/db/users/mostactive", name="mongo_db_api")
+     * @throws MongoDBException
      */
     public function total_logs_per_type_in_time_range()
     {
-        return $this->render('mongo_db_api/index.html.twig', [
-            'controller_name' => 'MongoDbApiController',
-        ]);
+
+        /** @var Builder $aggregator */
+        $resultSql = $this->dm->createQueryBuilder(User::class)
+            ->hydrate(User::class)
+            ->sort('votes', -1)
+            ->limit(50)
+            ->getQuery()
+            ->execute();
+
+        $response = array();
+        /** @var User $result */
+        foreach ($resultSql as $result) {
+            $response[] = array(
+                "username" => $result->getUsername(),
+                "totalVotes" => $result->getVotes(),
+            );
+        }
+
+        return new Response(
+            json_encode($response),
+            Response::HTTP_OK,
+            ['content-type' => 'application/json']
+        );
     }
 
     /**
