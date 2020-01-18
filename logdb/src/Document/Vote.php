@@ -7,11 +7,9 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\Bundle\MongoDBBundle\Validator\Constraints\Unique as MongoDBUnique;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @MongoDB\Document(collection="Votes")
- * @MongoDBUnique(fields="username")
  */
 class Vote
 {

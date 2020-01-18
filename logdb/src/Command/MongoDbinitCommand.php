@@ -7,6 +7,7 @@ use App\Document\Log;
 use App\Utils\LogParser\Kottas\AccessLogParser;
 use App\Utils\LogParser\Kottas\HdfsLogParserDataXReceiverLog;
 use App\Utils\LogParser\Kottas\HdfsLogParserNamesystemLog;
+use Doctrine\ODM\MongoDB\DocumentManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -67,6 +68,11 @@ class MongoDbinitCommand extends Command
         }
 
         $counterToFlushWrites = 1;
+
+        /**
+         * Delete following comment line, if any error
+         */
+        /** @var DocumentManager $dm */
         $dm = $this->container->get("doctrine_mongodb")->getManager();
         while (!feof($file)) {
             $line = fgets($file);

@@ -53,6 +53,11 @@ class User implements UserInterface
     private $phone_number;
 
     /**
+     * @MongoDB\Field(type="int")
+     */
+    private $votes;
+
+    /**
      * @MongoDB\Field(type="collection")
      */
     private $roles;
@@ -167,6 +172,19 @@ class User implements UserInterface
         $this->roles = $roles;
 
         return $this;
+    }
+
+    public function setVotes(?int $votes): self
+    {
+        $this->votes = $votes;
+
+        return $this;
+    }
+
+    public function getVotes(): ?int
+    {
+
+        return $this->votes;
     }
 
 }
