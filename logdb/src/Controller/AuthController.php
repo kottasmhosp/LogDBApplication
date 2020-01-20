@@ -28,11 +28,29 @@ class AuthController extends AbstractController
 
         $username = $request->request->get('_username');
         $password = $request->request->get('_password');
+        $email = $request->request->get('_email');
+        $phoneNumber = $request->request->get('_phonenumber');
+        $address = $request->request->get('_address');
+
+        $userExists = $documentManager->createQueryBuilder(User::class)
+            ->field("username")
+            ->equals($username)
+            ->count()
+            ->getQuery()
+            ->execute();
+
+        if($userExists != 0){
+            return new Response(sprintf('User with username %s exists', $username));
+        }
+
 
         //TODO search if user with username exists
         $user = new User();
         $user->setUsername($username);
         $user->setPassword($encoder->encodePassword($user, $password));
+        $user->setPhoneNumber($phoneNumber);
+        $user->setEmail($email);
+        $user->setAddress($address);
         $documentManager->persist($user);
         $documentManager->flush();
 

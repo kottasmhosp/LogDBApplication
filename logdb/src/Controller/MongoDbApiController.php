@@ -4,11 +4,15 @@ namespace App\Controller;
 
 use App\Document\Log;
 use App\Document\Query1;
+use App\Document\Query10;
+use App\Document\Query11;
 use App\Document\Query2;
 use App\Document\Query3;
 use App\Document\Query4;
 use App\Document\Query5;
 use App\Document\Query6;
+use App\Document\Query7;
+use App\Document\Query9;
 use App\Document\User;
 use App\Document\Vote;
 use Doctrine\ODM\MongoDB\Aggregation\Builder;
@@ -728,6 +732,7 @@ class MongoDbApiController extends AbstractController
          */
         /** @var Builder $aggregator */
         $aggregator = $this->dm->createAggregationBuilder(Log::class)
+            ->hydrate(Query7::class)
             ->match()
             ->field('insertDate')
             ->gte(new UTCDateTime(strtotime($searchDate->format("Y-m-d\TH:i:s.v\Z")) * 1000))
@@ -769,8 +774,10 @@ class MongoDbApiController extends AbstractController
 
         $response = array();
         foreach ($resultSql as $result) {
+            /** @var Query7 $result */
             $response[] = array(
-                "type" => $result
+                "logId" => $result->getId(),
+                "totalVotes" => $result->getTotalVotes()
             );
         }
 
@@ -830,6 +837,7 @@ class MongoDbApiController extends AbstractController
          */
         /** @var Builder $aggregator */
         $aggregator = $this->dm->createAggregationBuilder(Vote::class)
+            ->hydrate(Query9::class)
             ->unwind('$admins');
 
         /**
@@ -876,9 +884,11 @@ class MongoDbApiController extends AbstractController
         $resultSql = $aggregator->execute(array('allowDiskUse' => true));
 
         $response = array();
+        /** @var Query9 $result */
         foreach ($resultSql as $result) {
             $response[] = array(
-                "type" => $result
+                "username" => $result->getId()['username'],
+                "totalSourceIps" => $result->getTotalVotesPerSourceIp()
             );
         }
 
@@ -903,6 +913,7 @@ class MongoDbApiController extends AbstractController
          * @var Builder $aggregator
          */
         $aggregator = $this->dm->createAggregationBuilder(Vote::class)
+            ->hydrate(Query10::class)
             ->unwind('$admins');
 
         /**
@@ -972,12 +983,6 @@ class MongoDbApiController extends AbstractController
             ->sum(1);
 
         /**
-         * unwrap logs
-         */
-        $aggregator = $aggregator
-            ->unwind('$logs');
-
-        /**
          * Sort and return 50 top
          */
         $aggregator = $aggregator
@@ -988,9 +993,16 @@ class MongoDbApiController extends AbstractController
         $resultSql = $aggregator->execute(array('allowDiskUse' => true));
 
         $response = array();
+
+        /** @var Query10 $result */
         foreach ($resultSql as $result) {
+            $logs = array();
+            foreach ($result->getLogs() as $log){
+                $logs = array_merge($logs,$log);
+            }
             $response[] = array(
-                "type" => $result
+                "email" => $result->getId(),
+                "Logs" => $logs
             );
         }
 
@@ -1030,6 +1042,7 @@ class MongoDbApiController extends AbstractController
          * @var Builder $aggregator
          */
         $aggregator = $this->dm->createAggregationBuilder(Vote::class)
+            ->hydrate(Query11::class)
             ->match()
             ->field('admins')
             ->equals($payload['nameSearch']);
@@ -1135,9 +1148,11 @@ class MongoDbApiController extends AbstractController
         $resultSql = $aggregator->execute(array('allowDiskUse' => true));
 
         $response = array();
+        /** @var Query11 $result */
         foreach ($resultSql as $result) {
             $response[] = array(
-                "type" => $result
+                "username" => $result->getId(),
+                "blockIds" => $result->getBlocks()
             );
         }
 
@@ -1288,8 +1303,23 @@ class MongoDbApiController extends AbstractController
                 ->execute();
 
             if ($hasVoted == 0) {
-                $hasVoted->addAdmin($user->getUsername());
-                $this->dm->persist($hasVoted);
+                $hasVoted = $this->dm->createQueryBuilder(Vote::class)
+                    ->hydrate(true)
+                    ->field("log_id")
+                    ->equals($payload["logId"])
+                    ->getQuery()
+                    ->execute();
+
+                /**
+                 * Needs to iterate
+                 * due to CacheIterator
+                 */
+                /** @var Vote $vote */
+                foreach ($hasVoted as $vote){
+                    $vote->addAdmin($user->getUsername());
+                    $this->dm->persist($vote);
+                }
+
                 $this->dm->flush();
             } else {
                 return new Response(
