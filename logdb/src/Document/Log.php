@@ -20,7 +20,7 @@ class Log
 
     //Common
     /**
-     * @MongoDB\Field(type="string")
+     * @MongoDB\Field(type="string") @MongoDB\Index
      */
     private $sourceIp;
 

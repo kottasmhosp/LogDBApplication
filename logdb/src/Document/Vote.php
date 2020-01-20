@@ -22,16 +22,21 @@ class Vote
     /**
      * @MongoDB\Field(type="collection") @MongoDB\Index
      */
-    private $admin_ids;
+    private $admins;
 
     /**
      * @MongoDB\Field(type="string") @MongoDB\Index
      */
     private $log_id;
 
+    /**
+     * @MongoDB\Field(type="string")
+     */
+    private $source_ip;
+
     public function __construct()
     {
-        $this->admin_ids = array();
+        $this->admins = array();
     }
 
     public function getId(): ?string
@@ -42,15 +47,15 @@ class Vote
     /**
      * @return array
      */
-    public function getAdminId(): array
+    public function getAdmins(): array
     {
-        return $this->admin_ids;
+        return $this->admins;
     }
 
-    public function addAdminId(string $admin_id): self
+    public function addAdmin(string $admins): self
     {
-        if (!in_array($admin_id, $this->admin_ids)) {
-            $this->admin_ids[] = $admin_id;
+        if (!in_array($admins, $this->admins)) {
+            $this->admins[] = $admins;
         }
 
         return $this;
@@ -64,6 +69,18 @@ class Vote
     public function setLogId(string $log_id): self
     {
         $this->log_id = $log_id;
+
+        return $this;
+    }
+
+    public function getSourceIp(): ?string
+    {
+        return $this->source_ip;
+    }
+
+    public function setSourceIp(string $source_ip): self
+    {
+        $this->source_ip = $source_ip;
 
         return $this;
     }

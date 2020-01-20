@@ -32,7 +32,7 @@ class FakerCommand extends Command
     {
         $this
             ->setDescription('Fake data for Admins')
-            ->addArgument('suppressVoteRequirement',InputArgument::OPTIONAL,'Pass vote limitation to 1/3 if true');
+            ->addArgument('suppressVoteRequirement', InputArgument::OPTIONAL, 'Pass vote limitation to 1/3 if true');
     }
 
     public function __construct(ContainerInterface $container, DocumentManager $dm, UserPasswordEncoderInterface $encoder)
@@ -75,10 +75,11 @@ class FakerCommand extends Command
          * Current Total Votes in DB
          */
         $currentVotesDb = intval(round($this->dm->createQueryBuilder(Vote::class)
-                ->count()->getQuery()->execute() / 3, 0));
+                ->count()->getQuery()->execute(), 0));
 
         $leastVotes = $leastVotes - $currentVotesDb;
 
+        print_r("We need " . $leastVotes . " more votes\n");
 
         $totalVotes = 1;
         $counterFlush = 1;
@@ -119,43 +120,37 @@ class FakerCommand extends Command
             /** @var Log $log */
             foreach ($logs as $log) {
 
-                $voteExistsForLog = $this->dm->getRepository(Vote::class)->findOneBy(array('log_id' => $log->getId()));
-
                 /**
-                 * Query builder return cursor iterator
-                 * Needs to be iterated
+                 * Search if there is vote for log
                  */
-                /** @var Vote $voteExistsForLog */
+                $voteExistsForLog =  $this->dm->createQueryBuilder(Vote::class)
+                    ->field("log_id")
+                    ->equals($log->getId())
+                    ->count()
+                    ->getQuery()
+                    ->execute();
+
+
                 if (empty($voteExistsForLog)) {
-                    /**
-                     * Create new Vote if not found
-                     * and increment current total votes
-                     */
+
                     $vote = new Vote();
                     $vote->setLogId($log->getId());
-                    $vote->addAdminId($admin->getId());
+                    $vote->addAdmin($admin->getUsername());
+                    $vote->setSourceIp($log->getSourceIp());
                     $this->dm->persist($vote);
                     $totalVotes++;
                 } else {
-                    $voteExistsForLog->addAdminId($admin->getId());
+                    $voteExistsForLog->addAdmin($admin->getUsername());
                 }
 
             }
 
-            if ($totalVotes / (100000 * $counterFlush)  > 0) {
+            if ($totalVotes >= 500000 * $counterFlush) {
                 print("Current Total Votes are:" . $totalVotes . "\n");
                 $this->dm->flush();
                 $counterFlush++;
             }
 
-//            if($totalVotes > 100000 * $counterFlush){
-//                $continue = $io2->ask('Please enter 1 if you want to continue or 0 if not', null, null);
-//                if(empty($continue)){
-//                    $io2->success('Command completed Successfully');
-//                    exit();
-//                }
-//            }
-//            $counterFlush++;
         }
 
         $this->dm->flush();

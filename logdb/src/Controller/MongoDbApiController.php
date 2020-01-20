@@ -756,7 +756,7 @@ class MongoDbApiController extends AbstractController
         $aggregator = $aggregator
             ->addFields()
             ->field('totalVotes')
-            ->size('$votes.admin_ids');
+            ->size('$votes.admins');
 
         /**
          * Sort and return 50 top voted
@@ -825,9 +825,68 @@ class MongoDbApiController extends AbstractController
     public function top_fifty_administrators_total_number_of_source_ips()
     {
 
-        return $this->render('mongo_db_api/index.html.twig', [
-            'controller_name' => 'MongoDbApiController',
-        ]);
+        /**
+         * Get vote per admin
+         */
+        /** @var Builder $aggregator */
+        $aggregator = $this->dm->createAggregationBuilder(Vote::class)
+            ->unwind('$admins');
+
+        /**
+         * Group by username-source ip
+         * to group different logs
+         * with same source Ip
+         */
+        $aggregator = $aggregator
+            ->group()
+            ->field('id')
+            ->expression(
+                $this->dm->createAggregationBuilder(Vote::class)
+                    ->expr()
+                    ->field('username')
+                    ->expression('$admins')
+                    ->field('sourceIp')
+                    ->expression('$source_ip')
+            );
+
+        /**
+         * Group by username
+         * to count different source ips
+         */
+        $aggregator = $aggregator
+            ->group()
+            ->field('id')
+            ->expression(
+                $this->dm->createAggregationBuilder(Vote::class)
+                    ->expr()
+                    ->field('username')
+                    ->expression('$_id.username')
+            )
+            ->field('totalVotesPerSourceIp')
+            ->sum(1);
+
+
+        /**
+         * Sort and return 50 top
+         */
+        $aggregator = $aggregator
+            ->sort('totalVotesPerSourceIp', -1)
+            ->limit(50);
+
+        $resultSql = $aggregator->execute(array('allowDiskUse' => true));
+
+        $response = array();
+        foreach ($resultSql as $result) {
+            $response[] = array(
+                "type" => $result
+            );
+        }
+
+        return new Response(
+            json_encode($response),
+            Response::HTTP_OK,
+            ['content-type' => 'application/json']
+        );
     }
 
     /**
@@ -838,9 +897,108 @@ class MongoDbApiController extends AbstractController
      */
     public function votes_from_duplicate_admin()
     {
-        return $this->render('mongo_db_api/index.html.twig', [
-            'controller_name' => 'MongoDbApiController',
-        ]);
+
+        /**
+         * Get vote per admin
+         * @var Builder $aggregator
+         */
+        $aggregator = $this->dm->createAggregationBuilder(Vote::class)
+            ->unwind('$admins');
+
+        /**
+         * Group by email
+         */
+        $aggregator = $aggregator
+            ->group()
+            ->field('id')
+            ->expression('$admins')
+            ->field('logs')
+            ->push(
+                array(
+                    'lid' => '$log_id'
+                )
+            );
+
+        /**
+         * Get accounts
+         */
+        $aggregator = $aggregator
+            ->lookup('Users')
+            ->localField('_id')
+            ->foreignField('username')
+            ->alias('accounts');
+
+
+        /**
+         * Unwrap user
+         */
+        $aggregator = $aggregator
+            ->unwind('$accounts');
+
+        /**
+         * Unwrap user
+         */
+        $aggregator = $aggregator
+            ->replaceRoot(
+                array(
+                    '$arrayToObject' => array(
+                        '$concatArrays' => array(
+                            array('$filter' => array(
+                                'input' => array('$objectToArray' => '$$ROOT'),
+                                'cond' => array(
+                                    '$ne' => array(
+                                        '$$this.k', 'accounts'
+                                    )
+                                )
+                            )),
+                            array('$objectToArray' => array(
+                                "email" => '$accounts.email'
+                            ))
+                        )
+                    )
+                )
+            );
+
+        /**
+         * Group by email
+         */
+        $aggregator = $aggregator
+            ->group()
+            ->field('id')
+            ->expression('$email')
+            ->field('logs')
+            ->addToSet('$logs')
+            ->field('totalEmails')
+            ->sum(1);
+
+        /**
+         * unwrap logs
+         */
+        $aggregator = $aggregator
+            ->unwind('$logs');
+
+        /**
+         * Sort and return 50 top
+         */
+        $aggregator = $aggregator
+            ->match()
+            ->field('totalEmails')
+            ->gt(1);
+
+        $resultSql = $aggregator->execute(array('allowDiskUse' => true));
+
+        $response = array();
+        foreach ($resultSql as $result) {
+            $response[] = array(
+                "type" => $result
+            );
+        }
+
+        return new Response(
+            json_encode($response),
+            Response::HTTP_OK,
+            ['content-type' => 'application/json']
+        );
     }
 
     /**
@@ -848,12 +1006,10 @@ class MongoDbApiController extends AbstractController
      * which a given name has casted a vote for a log involving it.
      *
      * @Route("/api/db/api/block/all/vote/byname", name="mongo_db_block_byname")
-     * @param Request $request
      * @return Response
      */
-    public function block_ids_by_name_voted(Request $request)
+    public function block_ids_by_name_voted()
     {
-        $payload = json_decode($request->getContent(), true);
 
         return $this->render('mongo_db_api/index.html.twig', [
             'controller_name' => 'MongoDbApiController',
@@ -966,7 +1122,7 @@ class MongoDbApiController extends AbstractController
 
         if ($logExists == 0) {
             return new Response(
-                json_encode("Log with id " . $payload["logId"] . " do not exist"),
+                json_encode("Log with id " . $payload["logId"] . " does not exist"),
                 Response::HTTP_OK,
                 ['content-type' => 'application/json']
             );
@@ -981,23 +1137,35 @@ class MongoDbApiController extends AbstractController
             ->execute();
 
         if ($voteExists == 0) {
+
+            /** @var Log $log */
+            $log = $this->dm->createQueryBuilder(Log::class)
+                ->hydrate(true)
+                ->field("id")
+                ->equals($payload["logId"])
+                ->getQuery()
+                ->execute();
+
             $vote = new Vote();
             $vote->setLogId($payload["logId"]);
-            $vote->addAdminId($user->getId());
+            $vote->addAdmin($user->getUsername());
+            $vote->setLogId($log->getSourceIp());
             $this->dm->persist($vote);
             $this->dm->flush();
         } else {
+
+            /** @var Vote $hasVoted */
             $hasVoted = $this->dm->createQueryBuilder(Vote::class)
                 ->field("log_id")
                 ->equals($payload["logId"])
                 ->field("admin_ids")
-                ->equals($user->getId())
+                ->equals($user->getUsername())
                 ->count()
                 ->getQuery()
                 ->execute();
 
             if ($hasVoted == 0) {
-                $hasVoted->addAdminId($user->getId());
+                $hasVoted->addAdmin($user->getUsername());
                 $this->dm->persist($hasVoted);
                 $this->dm->flush();
             } else {
@@ -1018,7 +1186,6 @@ class MongoDbApiController extends AbstractController
     }
 
     /**
-     *
      * Check if log is correct
      *
      * @param array $payload
