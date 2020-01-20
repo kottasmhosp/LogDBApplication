@@ -906,7 +906,7 @@ class MongoDbApiController extends AbstractController
             ->unwind('$admins');
 
         /**
-         * Group by email
+         * Group by username
          */
         $aggregator = $aggregator
             ->group()
@@ -936,7 +936,7 @@ class MongoDbApiController extends AbstractController
             ->unwind('$accounts');
 
         /**
-         * Unwrap user
+         * Get email from object Logs
          */
         $aggregator = $aggregator
             ->replaceRoot(
@@ -1006,14 +1006,146 @@ class MongoDbApiController extends AbstractController
      * which a given name has casted a vote for a log involving it.
      *
      * @Route("/api/db/api/block/all/vote/byname", name="mongo_db_block_byname")
+     * @param Request $request
      * @return Response
      */
-    public function block_ids_by_name_voted()
+    public function block_ids_by_name_voted(Request $request)
     {
 
-        return $this->render('mongo_db_api/index.html.twig', [
-            'controller_name' => 'MongoDbApiController',
-        ]);
+        $payload = json_decode($request->getContent(), true);
+
+        $nameSearch = '';
+
+        if (empty($payload['nameSearch'])) {
+            return new Response(
+                json_encode("Missing name"),
+                Response::HTTP_OK,
+                ['content-type' => 'application/json']
+            );
+        }
+
+
+        /**
+         * Sort and return 50 top
+         * @var Builder $aggregator
+         */
+        $aggregator = $this->dm->createAggregationBuilder(Vote::class)
+            ->match()
+            ->field('admins')
+            ->equals($payload['nameSearch']);
+
+        /**
+         * Get vote per admin
+         * @var Builder $aggregator
+         */
+        $aggregator = $aggregator
+            ->addFields()
+            ->field('log_id')
+            ->expression(
+                array(
+                    '$toObjectId' => '$log_id'
+                )
+            );
+        /**
+         * Get vote per admin
+         * @var Builder $aggregator
+         */
+        $aggregator = $aggregator
+            ->unwind('$admins');
+
+        /**
+         * Get logs
+         */
+        $aggregator = $aggregator
+            ->lookup('Logs')
+            ->localField('log_id')
+            ->foreignField('_id')
+            ->alias('log');
+
+        /**
+         * Unwrap log
+         */
+        $aggregator = $aggregator
+            ->unwind('$log');
+
+        /**
+         * Unwrap blocks
+         */
+        $aggregator = $aggregator
+            ->replaceRoot(
+                array(
+                    '$arrayToObject' => array(
+                        '$concatArrays' => array(
+                            array('$filter' => array(
+                                'input' => array('$objectToArray' => '$$ROOT'),
+                                'cond' => array(
+                                    '$ne' => array(
+                                        '$$this.k', 'log'
+                                    )
+                                )
+                            )),
+                            array('$objectToArray' => array(
+                                "blocks" => '$log.blocks'
+                            ))
+                        )
+                    )
+                )
+            );
+
+        /**
+         * Keep only logs with blocks
+         */
+        $aggregator = $aggregator
+            ->match()
+            ->field('blocks')
+            ->exists(1)
+            ->not(array('$size' => 0));
+
+
+
+        /**
+         * From here starts some pretty printing
+         * extra stages
+         * Unwrap blocks
+         */
+        $aggregator = $aggregator
+            ->unwind('$blocks');
+
+        /**
+         * Group by username
+         */
+        $aggregator = $aggregator
+            ->group()
+            ->field('id')
+            ->expression('$admins')
+            ->field('blocks')
+            ->addToSet('$blocks');
+
+        /**
+         * Project only username
+         * and not duplicate blocks
+         */
+        $aggregator = $aggregator
+            ->project()
+            ->field("admins")
+            ->expression(1)
+            ->field("blocks")
+            ->expression(1);
+
+        $resultSql = $aggregator->execute(array('allowDiskUse' => true));
+
+        $response = array();
+        foreach ($resultSql as $result) {
+            $response[] = array(
+                "type" => $result
+            );
+        }
+
+        return new Response(
+            json_encode($response),
+            Response::HTTP_OK,
+            ['content-type' => 'application/json']
+        );
     }
 
     /**
@@ -1138,18 +1270,9 @@ class MongoDbApiController extends AbstractController
 
         if ($voteExists == 0) {
 
-            /** @var Log $log */
-            $log = $this->dm->createQueryBuilder(Log::class)
-                ->hydrate(true)
-                ->field("id")
-                ->equals($payload["logId"])
-                ->getQuery()
-                ->execute();
-
             $vote = new Vote();
             $vote->setLogId($payload["logId"]);
             $vote->addAdmin($user->getUsername());
-            $vote->setLogId($log->getSourceIp());
             $this->dm->persist($vote);
             $this->dm->flush();
         } else {
@@ -1158,7 +1281,7 @@ class MongoDbApiController extends AbstractController
             $hasVoted = $this->dm->createQueryBuilder(Vote::class)
                 ->field("log_id")
                 ->equals($payload["logId"])
-                ->field("admin_ids")
+                ->field("admins")
                 ->equals($user->getUsername())
                 ->count()
                 ->getQuery()
