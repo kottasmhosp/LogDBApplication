@@ -20,6 +20,7 @@ class AuthController extends AbstractController {
     $user->setPassword($encoder->encodePassword($user, $password));
     $em->persist($user);
     $em->flush();
+    exit();
 
 
     return new Response(sprintf('User %s successfully created', $user->getUsername()));
