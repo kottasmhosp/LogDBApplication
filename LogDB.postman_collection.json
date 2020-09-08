@@ -1,0 +1,796 @@
+{
+	"info": {
+		"_postman_id": "0f6f3100-132a-4524-b47e-1e0bba720179",
+		"name": "LogDB",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication - jwt",
+			"item": [
+				{
+					"name": "Register new integration user",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE1Nzg2MTE1MTUsImV4cCI6NjMyNzE3MTMxNTE1LCJyb2xlcyI6WyJST0xFX1VTRVIiXSwidXNlcm5hbWUiOiJ6ZXJtYXR0In0.NUY-gN8CVQ0bPQxPyxiZwd_mgigQfpd-ksKWFjE39HgFbRY76DvIPg0ymy56lJ99qh-O0DDuDxtoSpQvBZikrEyK1thXt0pxZBMDBNGkLz5VWP-bTUMkgkqtdOsRYFzlN7jfeEaNYsT05X1tg-i4krbX1lCPMDJoki9uEhTUUXdeUCdnEsSUjQR2JE3wDybcaSTukhwTmydA3dexe0XN9bZeGbbxYzkoFLptyJUsEAHRwO0ASA6oTYol83TVLR5ciJRWmwL_8uO4UYwNU8G0GteI64Ch81NIjFH6ZRxLyaYgU4bULmKFvHeqSitCBhacwkHqsJoO2iKDZPYFTjGCg2ErmQJWuPwqXj_kpTtYN3PYbMHxezbS5XFewcb-qO7C3XDY04XtlAtUGvdt8LL7mJCrrmcyFTue6kuLTbxzxub1rsCnAY7E-urWJF5gBINGLc8bxEjqAdOuu9Z3EnbT_TSjX1FIMvIv45jukidp_bDYq3aR6guL_njTmWUOs5sWX8npQ3FDSy6xRVDt0GzJUdvUKCOgWmOGF6tSuUlP6EfbYsHPKEE3J5IfurH6_gwtAlom6gsmPtQyQzrtca6epzO2KuYQiiVI_JYS5yXHLM7nSrGq9IXIRT-nfLDtSl_2p6sNXXS5-WvCmtaAKAGcW-Aj2bPdrMcE6lopXaV9mnQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "_username",
+									"value": "zermat3",
+									"type": "text"
+								},
+								{
+									"key": "_password",
+									"value": "12345",
+									"type": "text"
+								},
+								{
+									"key": "_email",
+									"value": "camden67@yahoo.com",
+									"type": "text"
+								},
+								{
+									"key": "_address",
+									"value": "theoron 4 California",
+									"type": "text"
+								},
+								{
+									"key": "_phonenumber",
+									"value": "+692124235",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/{{code_url}}/public/api/register_jwt",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"{{code_url}}",
+								"public",
+								"api",
+								"register_jwt"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get JWT token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"username\": \"zermat2\",\n\t\"password\": \"12345\"\n}"
+						},
+						"url": {
+							"raw": "{{domain}}/{{code_url}}/public/api/login_check",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"{{code_url}}",
+								"public",
+								"api",
+								"login_check"
+							]
+						},
+						"description": "Get a JWT token"
+					},
+					"response": []
+				},
+				{
+					"name": "Check user authentication",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE1Nzg3ODQ0MDksImV4cCI6NjMyNzE3MzA0NDA5LCJyb2xlcyI6WyJST0xFX1VTRVIiXSwidXNlcm5hbWUiOiJ6ZXJtYXQyIn0.HVOJ4R8aPxFL3QdTpgGyuCm-iwcD6hThhrV8_oopK4_pjOiuiJe1UWqlB5BOomcKE6jkqIj3krUtHThhgwJA0oysGb2cXrEeS44VPpxH_4eDYtadhJJJ1bS6sf3fJUwnUz4O1-0yTlWa17rGSrHsd6AUjv5CddP_3bwql2yd3YUHGkaoh4Y8jHSIQuWLTNuwADAOM0flhEyFaqLM-lIeBABzzWx59EAyMeGqbshb5Z54xUsZaM_BDQaVSfzEuF_iK6hznviAIB17vasE_ioK5UmjDPIAbG2md9jqSdhLKqY-hakTV2oy1VsN5fVnokXTkOK41TcIi6stWQtI5mY2TxJUPZqM4FTo2zTibT-55FWdREM-TEOZKp0kV-hBJ8ZOEZj2hDx4-5WydimkPYK_d498bDp2lCN0w_Abp3Z9lPr2H4au-q8Stq7Xyv3iQWIEvxe4RFA0Y2mPZHqH0_pkOJZLwlVLu7c3OUy7ru93KsMdC9ghc6SCF9o0OLWSQXY4F-BG6KMm6ftSv1Csene9zocNluX935ZSON_kb0O1aihcmCUniLU15JfO5Rkw00wo3mz5F9V_eJ5hkDDOBKjZHTUsyTtqMpcCrUB8Bb-Fngd1NEq64KoZP5lc8IXSHCvQgYWH5H48w-0nrrdbU5LnghHjdGOUuoVPkL4dwHipz9g",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{domain}}/{{code_url}}/public/api",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"{{code_url}}",
+								"public",
+								"api"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "e42a8f98-90de-4076-bad1-f9da2d38b9db",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "52d10a78-505d-42ef-b88d-4653d47b61dc",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "MongoDB API",
+			"item": [
+				{
+					"name": "New HDFS log",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE1NzkzODU1NDUsImV4cCI6NjMyNzE3OTA1NTQ1LCJyb2xlcyI6WyJST0xFX1VTRVIiXSwidXNlcm5hbWUiOiJ6ZXJtYXQyIn0.I4wVn9IvCCqKo6YzWhZqJp95vropJV5-5wfEoU-xNwy1ONbnYn4HqvILHRYtjsFADui1msrkxwJhmmx6ICX_uzIZTJIiuPeSkh52Qdv9X_2noimq--nahB7GVeoyoPTAmED6Sg4Frm8i5QJJCyy5ZAQNSzpCqKHMxn6Yt80rSU5H-cmv0qSwvYafWEcuo5b6Y_02cUljeInCTl8t04eHZZgYWLMAh8nsCS7aiZqykYYx8Ei7YjM2F1IDRMBjOLfbYmttR9Pb65XgPq_4SDc8DDSpOCugiLZKUsYcj4cdZ1bfHwyECQFLBG8k52PBlUIobI2aYtrIfrafxIDsJ1vUUb3X3a4ucLLau4Qz-IYiqZtTvQsZMJx1K3BtnB27dRHCXfgS4ZaTV7_PHPgtAnJhpQ5ZRljku1OFFpQoxbTH04eeHruSTsYBfWAYZC66aaQtUMJ-H7b_NdGqL-QsgNjfR3WTPuIW6jWqOqqGR9jXRWo2egwek9R3S2GUHyWwIE_9CtMjCHDtq6BR6_qPpo8wRrk4_pUeOrlwT66yGNmmMH6RFMiy-7lvUms2HF_qLVWo0TWzgd4BH4dNNY1r77R1e6jN63tDhyNtzWxPWykYhCy8U1b6gVRv3i1j71bR3tSJkjQNZLdkh3bkKbqFvqlj5X42k1OrAP0zhDzwi_AHKF4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"log\" : \"hdfs\",\n    \"type\": \"Replicate\",\n    \"sourceIp\": \"192.168.1.1\",\n    \"destIps\": [\n        \"192.168.1.2\",\n        \"192.168.1.3\"\n    ],\n    \"insertdate\": \"2018-09-21\",\n    \"blocks\": [\n        1234214125,\n        -125125412512,\n        125125125125123\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{domain}}/{{code_url}}/public/api/db/addlog",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"{{code_url}}",
+								"public",
+								"api",
+								"db",
+								"addlog"
+							]
+						},
+						"description": "Adding a new HDFS log"
+					},
+					"response": []
+				},
+				{
+					"name": "New Access log",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE1NzkzODU1NDUsImV4cCI6NjMyNzE3OTA1NTQ1LCJyb2xlcyI6WyJST0xFX1VTRVIiXSwidXNlcm5hbWUiOiJ6ZXJtYXQyIn0.I4wVn9IvCCqKo6YzWhZqJp95vropJV5-5wfEoU-xNwy1ONbnYn4HqvILHRYtjsFADui1msrkxwJhmmx6ICX_uzIZTJIiuPeSkh52Qdv9X_2noimq--nahB7GVeoyoPTAmED6Sg4Frm8i5QJJCyy5ZAQNSzpCqKHMxn6Yt80rSU5H-cmv0qSwvYafWEcuo5b6Y_02cUljeInCTl8t04eHZZgYWLMAh8nsCS7aiZqykYYx8Ei7YjM2F1IDRMBjOLfbYmttR9Pb65XgPq_4SDc8DDSpOCugiLZKUsYcj4cdZ1bfHwyECQFLBG8k52PBlUIobI2aYtrIfrafxIDsJ1vUUb3X3a4ucLLau4Qz-IYiqZtTvQsZMJx1K3BtnB27dRHCXfgS4ZaTV7_PHPgtAnJhpQ5ZRljku1OFFpQoxbTH04eeHruSTsYBfWAYZC66aaQtUMJ-H7b_NdGqL-QsgNjfR3WTPuIW6jWqOqqGR9jXRWo2egwek9R3S2GUHyWwIE_9CtMjCHDtq6BR6_qPpo8wRrk4_pUeOrlwT66yGNmmMH6RFMiy-7lvUms2HF_qLVWo0TWzgd4BH4dNNY1r77R1e6jN63tDhyNtzWxPWykYhCy8U1b6gVRv3i1j71bR3tSJkjQNZLdkh3bkKbqFvqlj5X42k1OrAP0zhDzwi_AHKF4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"log\": \"access\",\n    \"sourceIp\": \"192.168.1.1\",\n    \"destIp\": \"192.168.1.2\",\n    \"insertDate\": \"2018-09-21\",\n    \"requestedResource\": \"/admin/src\",\n    \"userAgent\": \"Mozilla 50/Firefox 20.3\",\n    \"referrer\": \"/src\",\n    \"responseSize\": 500,\n    \"responseStatus\": 200,\n    \"method\": \"GET\"\n}"
+						},
+						"url": {
+							"raw": "{{domain}}/{{code_url}}/public/api/db/addlog",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"{{code_url}}",
+								"public",
+								"api",
+								"db",
+								"addlog"
+							]
+						},
+						"description": "Adding a new HDFS log"
+					},
+					"response": []
+				},
+				{
+					"name": "Query 1",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE1NzkzODU1NDUsImV4cCI6NjMyNzE3OTA1NTQ1LCJyb2xlcyI6WyJST0xFX1VTRVIiXSwidXNlcm5hbWUiOiJ6ZXJtYXQyIn0.I4wVn9IvCCqKo6YzWhZqJp95vropJV5-5wfEoU-xNwy1ONbnYn4HqvILHRYtjsFADui1msrkxwJhmmx6ICX_uzIZTJIiuPeSkh52Qdv9X_2noimq--nahB7GVeoyoPTAmED6Sg4Frm8i5QJJCyy5ZAQNSzpCqKHMxn6Yt80rSU5H-cmv0qSwvYafWEcuo5b6Y_02cUljeInCTl8t04eHZZgYWLMAh8nsCS7aiZqykYYx8Ei7YjM2F1IDRMBjOLfbYmttR9Pb65XgPq_4SDc8DDSpOCugiLZKUsYcj4cdZ1bfHwyECQFLBG8k52PBlUIobI2aYtrIfrafxIDsJ1vUUb3X3a4ucLLau4Qz-IYiqZtTvQsZMJx1K3BtnB27dRHCXfgS4ZaTV7_PHPgtAnJhpQ5ZRljku1OFFpQoxbTH04eeHruSTsYBfWAYZC66aaQtUMJ-H7b_NdGqL-QsgNjfR3WTPuIW6jWqOqqGR9jXRWo2egwek9R3S2GUHyWwIE_9CtMjCHDtq6BR6_qPpo8wRrk4_pUeOrlwT66yGNmmMH6RFMiy-7lvUms2HF_qLVWo0TWzgd4BH4dNNY1r77R1e6jN63tDhyNtzWxPWykYhCy8U1b6gVRv3i1j71bR3tSJkjQNZLdkh3bkKbqFvqlj5X42k1OrAP0zhDzwi_AHKF4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"startDate\" : \"2014-01-02\",\n\t\"endDate\" : \"2017-01-02\"\n}"
+						},
+						"url": {
+							"raw": "{{domain}}/{{code_url}}/public/api/db/logs/pertype/timerange",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"{{code_url}}",
+								"public",
+								"api",
+								"db",
+								"logs",
+								"pertype",
+								"timerange"
+							]
+						},
+						"description": "Adding a new HDFS log"
+					},
+					"response": []
+				},
+				{
+					"name": "Query 2",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE1NzkzODU1NDUsImV4cCI6NjMyNzE3OTA1NTQ1LCJyb2xlcyI6WyJST0xFX1VTRVIiXSwidXNlcm5hbWUiOiJ6ZXJtYXQyIn0.I4wVn9IvCCqKo6YzWhZqJp95vropJV5-5wfEoU-xNwy1ONbnYn4HqvILHRYtjsFADui1msrkxwJhmmx6ICX_uzIZTJIiuPeSkh52Qdv9X_2noimq--nahB7GVeoyoPTAmED6Sg4Frm8i5QJJCyy5ZAQNSzpCqKHMxn6Yt80rSU5H-cmv0qSwvYafWEcuo5b6Y_02cUljeInCTl8t04eHZZgYWLMAh8nsCS7aiZqykYYx8Ei7YjM2F1IDRMBjOLfbYmttR9Pb65XgPq_4SDc8DDSpOCugiLZKUsYcj4cdZ1bfHwyECQFLBG8k52PBlUIobI2aYtrIfrafxIDsJ1vUUb3X3a4ucLLau4Qz-IYiqZtTvQsZMJx1K3BtnB27dRHCXfgS4ZaTV7_PHPgtAnJhpQ5ZRljku1OFFpQoxbTH04eeHruSTsYBfWAYZC66aaQtUMJ-H7b_NdGqL-QsgNjfR3WTPuIW6jWqOqqGR9jXRWo2egwek9R3S2GUHyWwIE_9CtMjCHDtq6BR6_qPpo8wRrk4_pUeOrlwT66yGNmmMH6RFMiy-7lvUms2HF_qLVWo0TWzgd4BH4dNNY1r77R1e6jN63tDhyNtzWxPWykYhCy8U1b6gVRv3i1j71bR3tSJkjQNZLdkh3bkKbqFvqlj5X42k1OrAP0zhDzwi_AHKF4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"startDate\" : \"2014-01-02\",\n\t\"endDate\" : \"2019-01-02\",\n\t\"type\" : \"delete\"\n}"
+						},
+						"url": {
+							"raw": "{{domain}}/{{code_url}}/public/api/db/log/perday/timetype",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"{{code_url}}",
+								"public",
+								"api",
+								"db",
+								"log",
+								"perday",
+								"timetype"
+							]
+						},
+						"description": "Adding a new HDFS log"
+					},
+					"response": []
+				},
+				{
+					"name": "Query 3",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE1NzkzODU1NDUsImV4cCI6NjMyNzE3OTA1NTQ1LCJyb2xlcyI6WyJST0xFX1VTRVIiXSwidXNlcm5hbWUiOiJ6ZXJtYXQyIn0.I4wVn9IvCCqKo6YzWhZqJp95vropJV5-5wfEoU-xNwy1ONbnYn4HqvILHRYtjsFADui1msrkxwJhmmx6ICX_uzIZTJIiuPeSkh52Qdv9X_2noimq--nahB7GVeoyoPTAmED6Sg4Frm8i5QJJCyy5ZAQNSzpCqKHMxn6Yt80rSU5H-cmv0qSwvYafWEcuo5b6Y_02cUljeInCTl8t04eHZZgYWLMAh8nsCS7aiZqykYYx8Ei7YjM2F1IDRMBjOLfbYmttR9Pb65XgPq_4SDc8DDSpOCugiLZKUsYcj4cdZ1bfHwyECQFLBG8k52PBlUIobI2aYtrIfrafxIDsJ1vUUb3X3a4ucLLau4Qz-IYiqZtTvQsZMJx1K3BtnB27dRHCXfgS4ZaTV7_PHPgtAnJhpQ5ZRljku1OFFpQoxbTH04eeHruSTsYBfWAYZC66aaQtUMJ-H7b_NdGqL-QsgNjfR3WTPuIW6jWqOqqGR9jXRWo2egwek9R3S2GUHyWwIE_9CtMjCHDtq6BR6_qPpo8wRrk4_pUeOrlwT66yGNmmMH6RFMiy-7lvUms2HF_qLVWo0TWzgd4BH4dNNY1r77R1e6jN63tDhyNtzWxPWykYhCy8U1b6gVRv3i1j71bR3tSJkjQNZLdkh3bkKbqFvqlj5X42k1OrAP0zhDzwi_AHKF4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"searchDate\" : \"2017-11-08\"\n}"
+						},
+						"url": {
+							"raw": "{{domain}}/{{code_url}}/public/api/db/logs/sourceip/threemostcommon",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"{{code_url}}",
+								"public",
+								"api",
+								"db",
+								"logs",
+								"sourceip",
+								"threemostcommon"
+							]
+						},
+						"description": "Adding a new HDFS log"
+					},
+					"response": []
+				},
+				{
+					"name": "Query 4",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE1NzkzODU1NDUsImV4cCI6NjMyNzE3OTA1NTQ1LCJyb2xlcyI6WyJST0xFX1VTRVIiXSwidXNlcm5hbWUiOiJ6ZXJtYXQyIn0.I4wVn9IvCCqKo6YzWhZqJp95vropJV5-5wfEoU-xNwy1ONbnYn4HqvILHRYtjsFADui1msrkxwJhmmx6ICX_uzIZTJIiuPeSkh52Qdv9X_2noimq--nahB7GVeoyoPTAmED6Sg4Frm8i5QJJCyy5ZAQNSzpCqKHMxn6Yt80rSU5H-cmv0qSwvYafWEcuo5b6Y_02cUljeInCTl8t04eHZZgYWLMAh8nsCS7aiZqykYYx8Ei7YjM2F1IDRMBjOLfbYmttR9Pb65XgPq_4SDc8DDSpOCugiLZKUsYcj4cdZ1bfHwyECQFLBG8k52PBlUIobI2aYtrIfrafxIDsJ1vUUb3X3a4ucLLau4Qz-IYiqZtTvQsZMJx1K3BtnB27dRHCXfgS4ZaTV7_PHPgtAnJhpQ5ZRljku1OFFpQoxbTH04eeHruSTsYBfWAYZC66aaQtUMJ-H7b_NdGqL-QsgNjfR3WTPuIW6jWqOqqGR9jXRWo2egwek9R3S2GUHyWwIE_9CtMjCHDtq6BR6_qPpo8wRrk4_pUeOrlwT66yGNmmMH6RFMiy-7lvUms2HF_qLVWo0TWzgd4BH4dNNY1r77R1e6jN63tDhyNtzWxPWykYhCy8U1b6gVRv3i1j71bR3tSJkjQNZLdkh3bkKbqFvqlj5X42k1OrAP0zhDzwi_AHKF4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"startDate\" : \"2014-01-02\",\n\t\"endDate\" : \"2019-01-02\"\n}"
+						},
+						"url": {
+							"raw": "{{domain}}/{{code_url}}/public/api/db/methods/twoleastcommon",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"{{code_url}}",
+								"public",
+								"api",
+								"db",
+								"methods",
+								"twoleastcommon"
+							]
+						},
+						"description": "Adding a new HDFS log"
+					},
+					"response": []
+				},
+				{
+					"name": "Query 5",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE1NzkzODU1NDUsImV4cCI6NjMyNzE3OTA1NTQ1LCJyb2xlcyI6WyJST0xFX1VTRVIiXSwidXNlcm5hbWUiOiJ6ZXJtYXQyIn0.I4wVn9IvCCqKo6YzWhZqJp95vropJV5-5wfEoU-xNwy1ONbnYn4HqvILHRYtjsFADui1msrkxwJhmmx6ICX_uzIZTJIiuPeSkh52Qdv9X_2noimq--nahB7GVeoyoPTAmED6Sg4Frm8i5QJJCyy5ZAQNSzpCqKHMxn6Yt80rSU5H-cmv0qSwvYafWEcuo5b6Y_02cUljeInCTl8t04eHZZgYWLMAh8nsCS7aiZqykYYx8Ei7YjM2F1IDRMBjOLfbYmttR9Pb65XgPq_4SDc8DDSpOCugiLZKUsYcj4cdZ1bfHwyECQFLBG8k52PBlUIobI2aYtrIfrafxIDsJ1vUUb3X3a4ucLLau4Qz-IYiqZtTvQsZMJx1K3BtnB27dRHCXfgS4ZaTV7_PHPgtAnJhpQ5ZRljku1OFFpQoxbTH04eeHruSTsYBfWAYZC66aaQtUMJ-H7b_NdGqL-QsgNjfR3WTPuIW6jWqOqqGR9jXRWo2egwek9R3S2GUHyWwIE_9CtMjCHDtq6BR6_qPpo8wRrk4_pUeOrlwT66yGNmmMH6RFMiy-7lvUms2HF_qLVWo0TWzgd4BH4dNNY1r77R1e6jN63tDhyNtzWxPWykYhCy8U1b6gVRv3i1j71bR3tSJkjQNZLdkh3bkKbqFvqlj5X42k1OrAP0zhDzwi_AHKF4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{domain}}/{{code_url}}/public/api/db/referrers/repeaters",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"{{code_url}}",
+								"public",
+								"api",
+								"db",
+								"referrers",
+								"repeaters"
+							]
+						},
+						"description": "Adding a new HDFS log"
+					},
+					"response": []
+				},
+				{
+					"name": "Query 6",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE1NzkzODU1NDUsImV4cCI6NjMyNzE3OTA1NTQ1LCJyb2xlcyI6WyJST0xFX1VTRVIiXSwidXNlcm5hbWUiOiJ6ZXJtYXQyIn0.I4wVn9IvCCqKo6YzWhZqJp95vropJV5-5wfEoU-xNwy1ONbnYn4HqvILHRYtjsFADui1msrkxwJhmmx6ICX_uzIZTJIiuPeSkh52Qdv9X_2noimq--nahB7GVeoyoPTAmED6Sg4Frm8i5QJJCyy5ZAQNSzpCqKHMxn6Yt80rSU5H-cmv0qSwvYafWEcuo5b6Y_02cUljeInCTl8t04eHZZgYWLMAh8nsCS7aiZqykYYx8Ei7YjM2F1IDRMBjOLfbYmttR9Pb65XgPq_4SDc8DDSpOCugiLZKUsYcj4cdZ1bfHwyECQFLBG8k52PBlUIobI2aYtrIfrafxIDsJ1vUUb3X3a4ucLLau4Qz-IYiqZtTvQsZMJx1K3BtnB27dRHCXfgS4ZaTV7_PHPgtAnJhpQ5ZRljku1OFFpQoxbTH04eeHruSTsYBfWAYZC66aaQtUMJ-H7b_NdGqL-QsgNjfR3WTPuIW6jWqOqqGR9jXRWo2egwek9R3S2GUHyWwIE_9CtMjCHDtq6BR6_qPpo8wRrk4_pUeOrlwT66yGNmmMH6RFMiy-7lvUms2HF_qLVWo0TWzgd4BH4dNNY1r77R1e6jN63tDhyNtzWxPWykYhCy8U1b6gVRv3i1j71bR3tSJkjQNZLdkh3bkKbqFvqlj5X42k1OrAP0zhDzwi_AHKF4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{domain}}/{{code_url}}/public/api/db/block/sameday/replicatedserved",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"{{code_url}}",
+								"public",
+								"api",
+								"db",
+								"block",
+								"sameday",
+								"replicatedserved"
+							]
+						},
+						"description": "Adding a new HDFS log"
+					},
+					"response": []
+				},
+				{
+					"name": "Query 7",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE1NzkzODU1NDUsImV4cCI6NjMyNzE3OTA1NTQ1LCJyb2xlcyI6WyJST0xFX1VTRVIiXSwidXNlcm5hbWUiOiJ6ZXJtYXQyIn0.I4wVn9IvCCqKo6YzWhZqJp95vropJV5-5wfEoU-xNwy1ONbnYn4HqvILHRYtjsFADui1msrkxwJhmmx6ICX_uzIZTJIiuPeSkh52Qdv9X_2noimq--nahB7GVeoyoPTAmED6Sg4Frm8i5QJJCyy5ZAQNSzpCqKHMxn6Yt80rSU5H-cmv0qSwvYafWEcuo5b6Y_02cUljeInCTl8t04eHZZgYWLMAh8nsCS7aiZqykYYx8Ei7YjM2F1IDRMBjOLfbYmttR9Pb65XgPq_4SDc8DDSpOCugiLZKUsYcj4cdZ1bfHwyECQFLBG8k52PBlUIobI2aYtrIfrafxIDsJ1vUUb3X3a4ucLLau4Qz-IYiqZtTvQsZMJx1K3BtnB27dRHCXfgS4ZaTV7_PHPgtAnJhpQ5ZRljku1OFFpQoxbTH04eeHruSTsYBfWAYZC66aaQtUMJ-H7b_NdGqL-QsgNjfR3WTPuIW6jWqOqqGR9jXRWo2egwek9R3S2GUHyWwIE_9CtMjCHDtq6BR6_qPpo8wRrk4_pUeOrlwT66yGNmmMH6RFMiy-7lvUms2HF_qLVWo0TWzgd4BH4dNNY1r77R1e6jN63tDhyNtzWxPWykYhCy8U1b6gVRv3i1j71bR3tSJkjQNZLdkh3bkKbqFvqlj5X42k1OrAP0zhDzwi_AHKF4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"searchDate\" : \"2017-11-08\"\n}"
+						},
+						"url": {
+							"raw": "{{domain}}/{{code_url}}/public/api/db/vote/mostupvoted/topfifty",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"{{code_url}}",
+								"public",
+								"api",
+								"db",
+								"vote",
+								"mostupvoted",
+								"topfifty"
+							]
+						},
+						"description": "Adding a new HDFS log"
+					},
+					"response": []
+				},
+				{
+					"name": "Query 8",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE1NzkzODU1NDUsImV4cCI6NjMyNzE3OTA1NTQ1LCJyb2xlcyI6WyJST0xFX1VTRVIiXSwidXNlcm5hbWUiOiJ6ZXJtYXQyIn0.I4wVn9IvCCqKo6YzWhZqJp95vropJV5-5wfEoU-xNwy1ONbnYn4HqvILHRYtjsFADui1msrkxwJhmmx6ICX_uzIZTJIiuPeSkh52Qdv9X_2noimq--nahB7GVeoyoPTAmED6Sg4Frm8i5QJJCyy5ZAQNSzpCqKHMxn6Yt80rSU5H-cmv0qSwvYafWEcuo5b6Y_02cUljeInCTl8t04eHZZgYWLMAh8nsCS7aiZqykYYx8Ei7YjM2F1IDRMBjOLfbYmttR9Pb65XgPq_4SDc8DDSpOCugiLZKUsYcj4cdZ1bfHwyECQFLBG8k52PBlUIobI2aYtrIfrafxIDsJ1vUUb3X3a4ucLLau4Qz-IYiqZtTvQsZMJx1K3BtnB27dRHCXfgS4ZaTV7_PHPgtAnJhpQ5ZRljku1OFFpQoxbTH04eeHruSTsYBfWAYZC66aaQtUMJ-H7b_NdGqL-QsgNjfR3WTPuIW6jWqOqqGR9jXRWo2egwek9R3S2GUHyWwIE_9CtMjCHDtq6BR6_qPpo8wRrk4_pUeOrlwT66yGNmmMH6RFMiy-7lvUms2HF_qLVWo0TWzgd4BH4dNNY1r77R1e6jN63tDhyNtzWxPWykYhCy8U1b6gVRv3i1j71bR3tSJkjQNZLdkh3bkKbqFvqlj5X42k1OrAP0zhDzwi_AHKF4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{domain}}/{{code_url}}/public/api/db/users/mostactive",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"{{code_url}}",
+								"public",
+								"api",
+								"db",
+								"users",
+								"mostactive"
+							]
+						},
+						"description": "Adding a new HDFS log"
+					},
+					"response": []
+				},
+				{
+					"name": "Query 9",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE1NzkzODU1NDUsImV4cCI6NjMyNzE3OTA1NTQ1LCJyb2xlcyI6WyJST0xFX1VTRVIiXSwidXNlcm5hbWUiOiJ6ZXJtYXQyIn0.I4wVn9IvCCqKo6YzWhZqJp95vropJV5-5wfEoU-xNwy1ONbnYn4HqvILHRYtjsFADui1msrkxwJhmmx6ICX_uzIZTJIiuPeSkh52Qdv9X_2noimq--nahB7GVeoyoPTAmED6Sg4Frm8i5QJJCyy5ZAQNSzpCqKHMxn6Yt80rSU5H-cmv0qSwvYafWEcuo5b6Y_02cUljeInCTl8t04eHZZgYWLMAh8nsCS7aiZqykYYx8Ei7YjM2F1IDRMBjOLfbYmttR9Pb65XgPq_4SDc8DDSpOCugiLZKUsYcj4cdZ1bfHwyECQFLBG8k52PBlUIobI2aYtrIfrafxIDsJ1vUUb3X3a4ucLLau4Qz-IYiqZtTvQsZMJx1K3BtnB27dRHCXfgS4ZaTV7_PHPgtAnJhpQ5ZRljku1OFFpQoxbTH04eeHruSTsYBfWAYZC66aaQtUMJ-H7b_NdGqL-QsgNjfR3WTPuIW6jWqOqqGR9jXRWo2egwek9R3S2GUHyWwIE_9CtMjCHDtq6BR6_qPpo8wRrk4_pUeOrlwT66yGNmmMH6RFMiy-7lvUms2HF_qLVWo0TWzgd4BH4dNNY1r77R1e6jN63tDhyNtzWxPWykYhCy8U1b6gVRv3i1j71bR3tSJkjQNZLdkh3bkKbqFvqlj5X42k1OrAP0zhDzwi_AHKF4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{domain}}/{{code_url}}/public/api/db/admin/sourceip/topfifty",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"{{code_url}}",
+								"public",
+								"api",
+								"db",
+								"admin",
+								"sourceip",
+								"topfifty"
+							]
+						},
+						"description": "Adding a new HDFS log"
+					},
+					"response": []
+				},
+				{
+					"name": "Query 10",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE1NzkzODU1NDUsImV4cCI6NjMyNzE3OTA1NTQ1LCJyb2xlcyI6WyJST0xFX1VTRVIiXSwidXNlcm5hbWUiOiJ6ZXJtYXQyIn0.I4wVn9IvCCqKo6YzWhZqJp95vropJV5-5wfEoU-xNwy1ONbnYn4HqvILHRYtjsFADui1msrkxwJhmmx6ICX_uzIZTJIiuPeSkh52Qdv9X_2noimq--nahB7GVeoyoPTAmED6Sg4Frm8i5QJJCyy5ZAQNSzpCqKHMxn6Yt80rSU5H-cmv0qSwvYafWEcuo5b6Y_02cUljeInCTl8t04eHZZgYWLMAh8nsCS7aiZqykYYx8Ei7YjM2F1IDRMBjOLfbYmttR9Pb65XgPq_4SDc8DDSpOCugiLZKUsYcj4cdZ1bfHwyECQFLBG8k52PBlUIobI2aYtrIfrafxIDsJ1vUUb3X3a4ucLLau4Qz-IYiqZtTvQsZMJx1K3BtnB27dRHCXfgS4ZaTV7_PHPgtAnJhpQ5ZRljku1OFFpQoxbTH04eeHruSTsYBfWAYZC66aaQtUMJ-H7b_NdGqL-QsgNjfR3WTPuIW6jWqOqqGR9jXRWo2egwek9R3S2GUHyWwIE_9CtMjCHDtq6BR6_qPpo8wRrk4_pUeOrlwT66yGNmmMH6RFMiy-7lvUms2HF_qLVWo0TWzgd4BH4dNNY1r77R1e6jN63tDhyNtzWxPWykYhCy8U1b6gVRv3i1j71bR3tSJkjQNZLdkh3bkKbqFvqlj5X42k1OrAP0zhDzwi_AHKF4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{domain}}/{{code_url}}/public/api/db/admin/vote/duplicates",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"{{code_url}}",
+								"public",
+								"api",
+								"db",
+								"admin",
+								"vote",
+								"duplicates"
+							]
+						},
+						"description": "Adding a new HDFS log"
+					},
+					"response": []
+				},
+				{
+					"name": "Query 11",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE1NzkzODU1NDUsImV4cCI6NjMyNzE3OTA1NTQ1LCJyb2xlcyI6WyJST0xFX1VTRVIiXSwidXNlcm5hbWUiOiJ6ZXJtYXQyIn0.I4wVn9IvCCqKo6YzWhZqJp95vropJV5-5wfEoU-xNwy1ONbnYn4HqvILHRYtjsFADui1msrkxwJhmmx6ICX_uzIZTJIiuPeSkh52Qdv9X_2noimq--nahB7GVeoyoPTAmED6Sg4Frm8i5QJJCyy5ZAQNSzpCqKHMxn6Yt80rSU5H-cmv0qSwvYafWEcuo5b6Y_02cUljeInCTl8t04eHZZgYWLMAh8nsCS7aiZqykYYx8Ei7YjM2F1IDRMBjOLfbYmttR9Pb65XgPq_4SDc8DDSpOCugiLZKUsYcj4cdZ1bfHwyECQFLBG8k52PBlUIobI2aYtrIfrafxIDsJ1vUUb3X3a4ucLLau4Qz-IYiqZtTvQsZMJx1K3BtnB27dRHCXfgS4ZaTV7_PHPgtAnJhpQ5ZRljku1OFFpQoxbTH04eeHruSTsYBfWAYZC66aaQtUMJ-H7b_NdGqL-QsgNjfR3WTPuIW6jWqOqqGR9jXRWo2egwek9R3S2GUHyWwIE_9CtMjCHDtq6BR6_qPpo8wRrk4_pUeOrlwT66yGNmmMH6RFMiy-7lvUms2HF_qLVWo0TWzgd4BH4dNNY1r77R1e6jN63tDhyNtzWxPWykYhCy8U1b6gVRv3i1j71bR3tSJkjQNZLdkh3bkKbqFvqlj5X42k1OrAP0zhDzwi_AHKF4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"nameSearch\" : \"theron04\"\n}"
+						},
+						"url": {
+							"raw": "{{domain}}/{{code_url}}/public/api/db/api/block/all/vote/byname",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"{{code_url}}",
+								"public",
+								"api",
+								"db",
+								"api",
+								"block",
+								"all",
+								"vote",
+								"byname"
+							]
+						},
+						"description": "Adding a new HDFS log"
+					},
+					"response": []
+				},
+				{
+					"name": "Cast Vote",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE1Nzg3ODQ0MDksImV4cCI6NjMyNzE3MzA0NDA5LCJyb2xlcyI6WyJST0xFX1VTRVIiXSwidXNlcm5hbWUiOiJ6ZXJtYXQyIn0.HVOJ4R8aPxFL3QdTpgGyuCm-iwcD6hThhrV8_oopK4_pjOiuiJe1UWqlB5BOomcKE6jkqIj3krUtHThhgwJA0oysGb2cXrEeS44VPpxH_4eDYtadhJJJ1bS6sf3fJUwnUz4O1-0yTlWa17rGSrHsd6AUjv5CddP_3bwql2yd3YUHGkaoh4Y8jHSIQuWLTNuwADAOM0flhEyFaqLM-lIeBABzzWx59EAyMeGqbshb5Z54xUsZaM_BDQaVSfzEuF_iK6hznviAIB17vasE_ioK5UmjDPIAbG2md9jqSdhLKqY-hakTV2oy1VsN5fVnokXTkOK41TcIi6stWQtI5mY2TxJUPZqM4FTo2zTibT-55FWdREM-TEOZKp0kV-hBJ8ZOEZj2hDx4-5WydimkPYK_d498bDp2lCN0w_Abp3Z9lPr2H4au-q8Stq7Xyv3iQWIEvxe4RFA0Y2mPZHqH0_pkOJZLwlVLu7c3OUy7ru93KsMdC9ghc6SCF9o0OLWSQXY4F-BG6KMm6ftSv1Csene9zocNluX935ZSON_kb0O1aihcmCUniLU15JfO5Rkw00wo3mz5F9V_eJ5hkDDOBKjZHTUsyTtqMpcCrUB8Bb-Fngd1NEq64KoZP5lc8IXSHCvQgYWH5H48w-0nrrdbU5LnghHjdGOUuoVPkL4dwHipz9g",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"logId\" : \"5e1a4fe10369707f953f6572\"\n}"
+						},
+						"url": {
+							"raw": "{{domain}}/{{code_url}}/public/api/db/castvote",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"{{code_url}}",
+								"public",
+								"api",
+								"db",
+								"castvote"
+							]
+						},
+						"description": "Adding a new HDFS log"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
